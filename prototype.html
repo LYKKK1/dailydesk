@@ -1,1129 +1,716 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DailyDesk - 现代化个人全能工作台样板</title>
-  <style>
-    :root {
-      --bg-base: #0B0E14;
-      --bg-surface: #121824;
-      --bg-surface-elevated: #1A2234;
-      --bg-hover: #222C42;
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-active: rgba(99, 102, 241, 0.5);
-      
-      --text-main: #F3F4F6;
-      --text-secondary: #9CA3AF;
-      --text-muted: #6B7280;
-      
-      --accent-primary: #6366F1;
-      --accent-glow: rgba(99, 102, 241, 0.25);
-      --accent-cyan: #06B6D4;
-      --accent-emerald: #10B981;
-      --accent-amber: #F59E0B;
-      --accent-rose: #F43F5E;
-      
-      --p0-color: #EF4444;
-      --p1-color: #F97316;
-      --p2-color: #3B82F6;
-      --p3-color: #6B7280;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DailyDesk v2 - 全功能交互原型</title>
+<style>
+:root{
+  --bg0:#0a0d13;--bg1:#111827;--bg2:#1e293b;--bg3:#283548;--bg4:#334155;
+  --bdr:rgba(255,255,255,.07);--bdr-a:rgba(99,102,241,.55);
+  --tx:#f1f5f9;--tx2:#94a3b8;--tx3:#64748b;
+  --ac:#6366f1;--ac2:#818cf8;--acg:rgba(99,102,241,.22);
+  --cy:#06b6d4;--em:#10b981;--am:#f59e0b;--ro:#f43f5e;--or:#f97316;
+  --p0:#ef4444;--p1:#f97316;--p2:#3b82f6;--p3:#6b7280;
+  --r:10px;--r2:14px;--r3:20px;--rf:9999px;
+  --sh:0 4px 24px -4px rgba(0,0,0,.5);--shg:0 0 20px -4px var(--acg);
+  --tr:all .22s cubic-bezier(.16,1,.3,1);
+}
+[data-theme=light]{
+  --bg0:#f8fafc;--bg1:#fff;--bg2:#f1f5f9;--bg3:#e2e8f0;--bg4:#cbd5e1;
+  --bdr:rgba(0,0,0,.07);--tx:#0f172a;--tx2:#475569;--tx3:#94a3b8;
+  --sh:0 4px 24px -4px rgba(0,0,0,.06);--shg:0 0 16px -4px rgba(99,102,241,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg0);color:var(--tx);height:100vh;overflow:hidden;display:flex;flex-direction:column;user-select:none}
 
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 16px;
-      --radius-full: 9999px;
-      --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
-      --shadow-glow: 0 0 25px -5px var(--accent-glow);
-      --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+/* ===== 标题栏 ===== */
+.tbar{height:36px;background:var(--bg1);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:12px;color:var(--tx3)}
+.tbar-l{display:flex;align-items:center;gap:8px}
+.brand-dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--cy));box-shadow:0 0 7px var(--ac)}
+.tbar-brand{font-weight:700;color:var(--tx);font-size:13px}
+.sync-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:var(--rf);background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:var(--em);font-size:11px;cursor:pointer}
+.sync-dot{width:5px;height:5px;border-radius:50%;background:var(--em);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(16,185,129,.5)}70%{box-shadow:0 0 0 5px rgba(16,185,129,0)}100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}}
+.win-btns{display:flex;gap:6px}
+.wb{width:11px;height:11px;border-radius:50%;border:none;cursor:pointer}
+.wb-c{background:#ff5f56}.wb-m{background:#ffbd2e}.wb-x{background:#27c93f}
 
-    [data-theme="light"] {
-      --bg-base: #F8FAFC;
-      --bg-surface: #FFFFFF;
-      --bg-surface-elevated: #F1F5F9;
-      --bg-hover: #E2E8F0;
-      --border-subtle: rgba(0, 0, 0, 0.08);
-      --border-active: rgba(99, 102, 241, 0.5);
-      --text-main: #0F172A;
-      --text-secondary: #475569;
-      --text-muted: #94A3B8;
-      --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
-      --shadow-glow: 0 0 20px -5px rgba(99, 102, 241, 0.15);
-    }
+/* ===== 主布局 ===== */
+.app{display:flex;flex:1;overflow:hidden}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-    }
+/* ===== 侧边栏 ===== */
+.side{width:220px;background:var(--bg1);border-right:1px solid var(--bdr);display:flex;flex-direction:column;padding:12px 8px;flex-shrink:0}
+.qc-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:8px 10px;background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(6,182,212,.08));border:1px solid var(--bdr-a);border-radius:var(--r);color:var(--tx);font-size:12.5px;font-weight:500;cursor:pointer;margin-bottom:14px;box-shadow:var(--shg);transition:var(--tr)}
+.qc-btn:hover{transform:translateY(-1px);background:linear-gradient(135deg,rgba(99,102,241,.22),rgba(6,182,212,.16))}
+.kbd{background:rgba(0,0,0,.3);padding:1px 5px;border-radius:4px;font-size:9.5px;color:var(--tx3);border:1px solid var(--bdr);font-family:monospace}
+.ng-title{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);padding:8px 8px 3px 8px;font-weight:700}
+.nav-list{list-style:none;display:flex;flex-direction:column;gap:2px}
+.ni{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:var(--r);color:var(--tx2);font-size:12.5px;cursor:pointer;transition:var(--tr)}
+.ni:hover{background:var(--bg3);color:var(--tx)}
+.ni.act{background:var(--bg2);color:var(--ac);font-weight:600;border-left:3px solid var(--ac);border-radius:0 var(--r) var(--r) 0}
+.ni-l{display:flex;align-items:center;gap:9px}
+.ni-i{font-size:15px;width:18px;text-align:center}
+.ni-b{font-size:10px;padding:1px 6px;border-radius:var(--rf);background:var(--bg2);color:var(--tx3)}
+.side-ft{margin-top:auto;padding-top:10px;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--tx3)}
+.th-btn{background:transparent;border:1px solid var(--bdr);color:var(--tx2);padding:4px 7px;border-radius:4px;cursor:pointer;font-size:10.5px}
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-      background: var(--bg-base);
-      color: var(--text-main);
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
+/* ===== 主内容区 ===== */
+.main{flex:1;overflow-y:auto;padding:22px 28px;background:var(--bg0)}
+.page{display:none}.page.show{display:block}
 
-    /* Windows 沉浸式模拟顶栏 */
-    .titlebar {
-      height: 38px;
-      background: var(--bg-surface);
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 14px;
-      font-size: 12px;
-      color: var(--text-muted);
-      -webkit-app-region: drag;
-    }
+/* ===== 通用组件 ===== */
+.vh{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.vh h1{font-size:20px;font-weight:700}
+.vh-sub{font-size:12px;color:var(--tx3);margin-top:3px}
+.search-bar{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--r);font-size:11.5px;color:var(--tx3);cursor:pointer;width:220px;transition:var(--tr)}
+.search-bar:hover{border-color:var(--bdr-a)}
+.card{background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--r2);padding:16px;box-shadow:var(--sh);transition:var(--tr);margin-bottom:16px}
+.card:hover{border-color:rgba(255,255,255,.12)}
+.card-t{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-t h3{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:7px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g7-5{grid-template-columns:7fr 5fr}
 
-    .titlebar-brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-      color: var(--text-main);
-    }
+/* 按钮 */
+.btn{padding:7px 14px;border-radius:var(--r);font-size:11.5px;font-weight:500;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:var(--tr)}
+.btn-p{background:var(--ac);color:#fff;box-shadow:0 2px 8px var(--acg)}.btn-p:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-s{background:var(--bg2);color:var(--tx2);border:1px solid var(--bdr)}.btn-s:hover{background:var(--bg3);color:var(--tx)}
+.btn-sm{padding:5px 10px;font-size:10.5px}
 
-    .brand-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan));
-      box-shadow: 0 0 8px var(--accent-primary);
-    }
+/* 标签 */
+.tag{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
+.t-p0{background:rgba(239,68,68,.13);color:var(--p0)}.t-p1{background:rgba(249,115,22,.13);color:var(--p1)}.t-p2{background:rgba(59,130,246,.13);color:var(--p2)}.t-p3{background:rgba(107,114,128,.13);color:var(--p3)}
 
-    .sync-status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 10px;
-      border-radius: var(--radius-full);
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      color: var(--accent-emerald);
-      font-size: 11px;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .sync-status-badge:hover {
-      background: rgba(16, 185, 129, 0.2);
-    }
-    .pulse-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent-emerald);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-      70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
+/* 待办条目 */
+.todo{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--bg2);border-radius:var(--r);border:1px solid transparent;cursor:pointer;transition:var(--tr);margin-bottom:6px}
+.todo:hover{border-color:var(--bdr);transform:translateX(2px)}
+.todo-l{display:flex;align-items:center;gap:9px}
+.ckb{width:17px;height:17px;border-radius:5px;border:2px solid var(--tx3);display:flex;align-items:center;justify-content:center;transition:var(--tr);flex-shrink:0;cursor:pointer}
+.todo:hover .ckb{border-color:var(--ac)}
+.ckb.ck{background:var(--em);border-color:var(--em)}.ckb.ck::after{content:"✓";color:#fff;font-size:11px;font-weight:700}
+.todo.done .todo-tt{text-decoration:line-through;color:var(--tx3)}
+.todo-tt{font-size:12.5px}.todo-meta{font-size:10.5px;color:var(--tx3);margin-top:2px}
+.todo-r{display:flex;align-items:center;gap:8px}
 
-    .titlebar-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+/* ===== 1. 仪表盘 ===== */
+.dash-ring{width:80px;height:80px;position:relative}
+.dash-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.dash-ring .bg{stroke:var(--bg3);stroke-width:7;fill:none}
+.dash-ring .fg{stroke:var(--em);stroke-width:7;fill:none;stroke-linecap:round;stroke-dasharray:226;stroke-dashoffset:75;transition:stroke-dashoffset .6s}
+.dash-ring-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:18px;font-weight:700}
+.dash-ring-sub{font-size:9px;color:var(--tx3);font-weight:400}
+.mini-stat{text-align:center;padding:12px;background:var(--bg2);border-radius:var(--r)}
+.mini-stat-v{font-size:22px;font-weight:700;color:var(--ac2)}.mini-stat-l{font-size:10.5px;color:var(--tx3);margin-top:2px}
 
-    .window-controls {
-      display: flex;
-      gap: 6px;
-    }
-    .win-btn {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-    }
-    .win-btn.close { background: #FF5F56; }
-    .win-btn.min { background: #FFBD2E; }
-    .win-btn.max { background: #27C93F; }
+/* ===== 2. 四象限看板 ===== */
+.matrix{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;height:420px}
+.quad{background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--r2);padding:12px;display:flex;flex-direction:column}
+.quad-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:12px;font-weight:600}
+.quad-items{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:5px}
+.quad-item{padding:7px 10px;background:var(--bg2);border-radius:var(--r);font-size:11.5px;cursor:grab;transition:var(--tr)}
+.quad-item:hover{background:var(--bg3)}
 
-    /* 主视口布局 */
-    .app-container {
-      display: flex;
-      flex: 1;
-      height: calc(100vh - 38px);
-      overflow: hidden;
-      position: relative;
-    }
+/* tabs */
+.tabs{display:flex;gap:4px;margin-bottom:16px}
+.tab{padding:6px 14px;border-radius:var(--rf);font-size:12px;color:var(--tx3);cursor:pointer;transition:var(--tr);border:1px solid transparent}
+.tab:hover{color:var(--tx);background:var(--bg2)}
+.tab.act{background:var(--bg2);color:var(--ac);font-weight:600;border-color:var(--bdr-a)}
+.tab-body{display:none}.tab-body.show{display:block}
 
-    /* 左侧导航栏 */
-    .sidebar {
-      width: 230px;
-      background: var(--bg-surface);
-      border-right: 1px solid var(--border-subtle);
-      display: flex;
-      flex-direction: column;
-      padding: 14px 10px;
-      flex-shrink: 0;
-    }
+/* ===== 3. 日历时间块 ===== */
+.cal-header{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.cal-nav{display:flex;align-items:center;gap:8px}
+.cal-nav-btn{background:var(--bg2);border:1px solid var(--bdr);color:var(--tx2);width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:var(--tr)}
+.cal-nav-btn:hover{background:var(--bg3);color:var(--tx)}
+.cal-month{font-size:15px;font-weight:700}
+.cal-grid-month{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+.cal-wk{font-size:10px;color:var(--tx3);padding:6px 0;font-weight:600}
+.cal-day{padding:8px 4px;border-radius:var(--r);font-size:12px;cursor:pointer;transition:var(--tr);position:relative}
+.cal-day:hover{background:var(--bg2)}
+.cal-day.today{background:var(--ac);color:#fff;font-weight:700;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.cal-day.has-event::after{content:"";width:4px;height:4px;border-radius:50%;background:var(--cy);position:absolute;bottom:2px;left:50%;transform:translateX(-50%)}
+.cal-day.rest{color:var(--ro);font-weight:500}
+.timeline{margin-top:16px}
+.tl-row{display:flex;align-items:stretch;border-top:1px solid var(--bdr);min-height:48px}
+.tl-time{width:56px;font-size:10.5px;color:var(--tx3);padding:6px 8px 0 0;text-align:right;flex-shrink:0}
+.tl-slot{flex:1;padding:4px;min-height:48px;position:relative}
+.tl-block{padding:6px 10px;border-radius:6px;font-size:11.5px;font-weight:500;margin-bottom:3px;cursor:pointer;transition:var(--tr)}
+.tl-block:hover{filter:brightness(1.15)}
+.tl-b1{background:rgba(99,102,241,.18);color:var(--ac2);border-left:3px solid var(--ac)}
+.tl-b2{background:rgba(6,182,212,.15);color:var(--cy);border-left:3px solid var(--cy)}
+.tl-b3{background:rgba(249,115,22,.15);color:var(--or);border-left:3px solid var(--or)}
 
-    .quick-capture-btn {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      padding: 9px 12px;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(6, 182, 212, 0.1));
-      border: 1px solid var(--border-active);
-      border-radius: var(--radius-md);
-      color: var(--text-main);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      margin-bottom: 16px;
-      transition: var(--transition);
-      box-shadow: var(--shadow-glow);
-    }
-    .quick-capture-btn:hover {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(6, 182, 212, 0.2));
-      transform: translateY(-1px);
-    }
-    .kbd-shortcut {
-      background: rgba(0, 0, 0, 0.3);
-      padding: 2px 6px;
-      border-radius: var(--radius-sm);
-      font-size: 10px;
-      color: var(--text-muted);
-      border: 1px solid var(--border-subtle);
-      font-family: monospace;
-    }
+/* ===== 4. 灵感便签 ===== */
+.memo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.memo{border-radius:var(--r);padding:14px;display:flex;flex-direction:column;min-height:110px;cursor:pointer;transition:var(--tr);border:1px solid var(--bdr)}
+.memo:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.memo-1{background:#1a1f2e;border-left:4px solid var(--cy)}
+.memo-2{background:#1f1a2e;border-left:4px solid #a78bfa}
+.memo-3{background:#1a2e1f;border-left:4px solid var(--em)}
+.memo-4{background:#2e2a1a;border-left:4px solid var(--am)}
+.memo-5{background:#2e1a1f;border-left:4px solid var(--ro)}
+.memo-6{background:#1a2a2e;border-left:4px solid #38bdf8}
+[data-theme=light] .memo-1{background:#f0f9ff}[data-theme=light] .memo-2{background:#f5f3ff}[data-theme=light] .memo-3{background:#f0fdf4}[data-theme=light] .memo-4{background:#fffbeb}[data-theme=light] .memo-5{background:#fff1f2}[data-theme=light] .memo-6{background:#ecfeff}
+.memo-txt{font-size:12px;line-height:1.6;color:var(--tx);flex:1}
+.memo-ft{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:10.5px;color:var(--tx3)}
+.memo-act{color:var(--ac);cursor:pointer;font-size:10.5px}.memo-act:hover{text-decoration:underline}
+.memo-new{border:2px dashed var(--bdr);display:flex;align-items:center;justify-content:center;min-height:110px;border-radius:var(--r);cursor:pointer;color:var(--tx3);font-size:13px;transition:var(--tr)}
+.memo-new:hover{border-color:var(--ac);color:var(--ac)}
 
-    .nav-group-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      padding: 10px 10px 4px 10px;
-      font-weight: 600;
-    }
+/* ===== 5. 番茄钟 ===== */
+.pomo-center{display:flex;flex-direction:column;align-items:center;padding:20px 0}
+.pomo-ring{width:200px;height:200px;position:relative;margin-bottom:20px}
+.pomo-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.pomo-ring .bg{stroke:var(--bg3);stroke-width:10;fill:none}
+.pomo-ring .fg{stroke:var(--ac);stroke-width:10;fill:none;stroke-linecap:round;stroke-dasharray:565;transition:stroke-dashoffset .5s}
+.pomo-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.pomo-digits{font-size:42px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.pomo-label{font-size:12px;color:var(--cy);margin-top:4px;font-weight:500}
+.pomo-ctrls{display:flex;gap:10px;margin-bottom:20px}
+.noise-bar{display:flex;gap:8px;margin-top:16px}
+.noise-chip{padding:6px 12px;border-radius:var(--rf);background:var(--bg2);border:1px solid var(--bdr);color:var(--tx2);font-size:11px;cursor:pointer;transition:var(--tr)}
+.noise-chip.act{border-color:var(--bdr-a);color:var(--ac);background:rgba(99,102,241,.1)}
+.noise-chip:hover{background:var(--bg3);color:var(--tx)}
+.pomo-task{margin-top:18px;padding:12px 16px;background:var(--bg2);border-radius:var(--r);display:flex;align-items:center;gap:10px;font-size:12px;color:var(--tx2)}
+.pomo-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px}
 
-    .nav-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
+/* ===== 6. 习惯追踪 ===== */
+.hm-grid{display:grid;grid-template-columns:repeat(26,13px);grid-template-rows:repeat(7,13px);gap:3px}
+.hm-c{width:13px;height:13px;border-radius:2.5px;background:var(--bg2);transition:var(--tr)}
+.hm-c.l1{background:#0e4429}.hm-c.l2{background:#006d32}.hm-c.l3{background:#26a641}.hm-c.l4{background:#39d353;box-shadow:0 0 4px rgba(57,211,83,.3)}
+.habit-list{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.habit-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border-radius:var(--r);transition:var(--tr);cursor:pointer}
+.habit-row:hover{background:var(--bg3)}
+.habit-l{display:flex;align-items:center;gap:10px}
+.habit-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.habit-name{font-size:12.5px;font-weight:500}
+.habit-streak{font-size:10.5px;color:var(--tx3);margin-top:1px}
+.habit-ck-btn{padding:5px 12px;border-radius:var(--rf);font-size:11px;border:1px solid;cursor:pointer;transition:var(--tr)}
+.habit-ck-btn.done{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.3);color:var(--em)}
+.habit-ck-btn.pending{background:transparent;border-color:var(--bdr);color:var(--tx3)}
+.habit-ck-btn.pending:hover{border-color:var(--em);color:var(--em)}
 
-    .nav-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 10px;
-      border-radius: var(--radius-md);
-      color: var(--text-secondary);
-      font-size: 13px;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .nav-item:hover {
-      background: var(--bg-hover);
-      color: var(--text-main);
-    }
-    .nav-item.active {
-      background: var(--bg-surface-elevated);
-      color: var(--accent-primary);
-      font-weight: 500;
-      border-left: 3px solid var(--accent-primary);
-      border-radius: 0 var(--radius-md) var(--radius-md) 0;
-    }
-    .nav-item-content {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .nav-item-icon {
-      font-size: 16px;
-      width: 18px;
-      text-align: center;
-    }
-    .nav-badge {
-      font-size: 11px;
-      padding: 2px 7px;
-      border-radius: var(--radius-full);
-      background: var(--bg-surface-elevated);
-      color: var(--text-muted);
-    }
+/* ===== 7. 复盘 ===== */
+.review-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.rv-box{padding:14px;background:var(--bg2);border-radius:var(--r);text-align:center}
+.rv-val{font-size:24px;font-weight:800}.rv-lab{font-size:10.5px;color:var(--tx3);margin-top:3px}
+.review-section{margin-bottom:16px}
+.review-section h4{font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.review-list{display:flex;flex-direction:column;gap:4px}
+.rv-item{padding:7px 10px;background:var(--bg2);border-radius:6px;font-size:12px;display:flex;align-items:center;gap:8px}
+.rv-done{color:var(--em)}.rv-miss{color:var(--ro)}
+.rv-textarea{width:100%;min-height:100px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:12px;color:var(--tx);font-size:12.5px;resize:vertical;font-family:inherit;outline:none}
+.rv-textarea:focus{border-color:var(--bdr-a)}
 
-    .sidebar-footer {
-      margin-top: auto;
-      padding-top: 12px;
-      border-top: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: var(--text-muted);
-      font-size: 12px;
-    }
-    .theme-toggle-btn {
-      background: transparent;
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      padding: 5px 8px;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-    }
+/* ===== 闪念胶囊 ===== */
+.capsule-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;display:none}
+.capsule-overlay.open{display:block}
+.capsule{position:fixed;top:18%;left:50%;transform:translateX(-50%) scale(.96);width:600px;background:var(--bg1);border:1px solid var(--bdr-a);border-radius:var(--r2);box-shadow:0 20px 50px rgba(0,0,0,.7),var(--shg);padding:14px 18px;z-index:200;opacity:0;pointer-events:none;transition:var(--tr)}
+.capsule.open{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1)}
+.capsule input{width:100%;background:transparent;border:none;outline:none;font-size:15px;color:var(--tx);padding:2px 0}
+.capsule-ft{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--bdr);font-size:10.5px;color:var(--tx3)}
 
-    /* 中间主工作区 */
-    .main-workspace {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: var(--bg-base);
-      overflow-y: auto;
-      padding: 24px 30px;
-    }
+/* ===== 命令面板 ===== */
+.cmd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:299;display:none}
+.cmd-overlay.open{display:block}
+.cmd-panel{position:fixed;top:16%;left:50%;transform:translateX(-50%) scale(.96);width:520px;background:var(--bg1);border:1px solid var(--bdr-a);border-radius:var(--r2);box-shadow:0 20px 50px rgba(0,0,0,.7),var(--shg);z-index:300;opacity:0;pointer-events:none;transition:var(--tr);overflow:hidden}
+.cmd-panel.open{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1)}
+.cmd-input-wrap{padding:12px 16px;border-bottom:1px solid var(--bdr)}
+.cmd-input-wrap input{width:100%;background:transparent;border:none;outline:none;font-size:14px;color:var(--tx)}
+.cmd-list{max-height:300px;overflow-y:auto}
+.cmd-item{padding:9px 16px;font-size:12.5px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:10px;transition:var(--tr)}
+.cmd-item:hover,.cmd-item.sel{background:var(--bg2);color:var(--tx)}
+.cmd-item .cmd-icon{width:18px;text-align:center;font-size:14px}
+.cmd-item .cmd-key{margin-left:auto;font-size:10px;color:var(--tx3)}
 
-    .view-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-    .greeting-title {
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .greeting-sub {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
+/* ===== 贴边悬浮 ===== */
+.dock{position:fixed;right:0;top:32%;width:5px;height:100px;background:linear-gradient(180deg,var(--ac),var(--cy));border-radius:4px 0 0 4px;cursor:pointer;box-shadow:-2px 0 8px rgba(99,102,241,.35);transition:var(--tr);z-index:100}
+.dock:hover{width:240px;height:260px;top:28%;background:var(--bg1);border:1px solid var(--bdr-a);border-right:none;border-radius:var(--r2) 0 0 var(--r2);padding:14px;box-shadow:-6px 0 25px rgba(0,0,0,.55)}
+.dock-c{display:none;flex-direction:column;height:100%}.dock:hover .dock-c{display:flex}
 
-    .search-command-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 14px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      font-size: 12px;
-      color: var(--text-muted);
-      cursor: pointer;
-      width: 240px;
-      transition: var(--transition);
-    }
-    .search-command-bar:hover {
-      border-color: var(--border-active);
-    }
+/* ===== Toast ===== */
+.toast{position:fixed;bottom:20px;right:20px;padding:9px 16px;background:var(--bg2);border:1px solid var(--bdr-a);border-radius:var(--r);color:var(--tx);font-size:11.5px;box-shadow:var(--sh);transform:translateY(80px);opacity:0;transition:var(--tr);z-index:400}
+.toast.show{transform:translateY(0);opacity:1}
 
-    /* 网格看板卡片区 */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 18px;
-    }
-
-    .card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 18px;
-      box-shadow: var(--shadow-card);
-      transition: var(--transition);
-      position: relative;
-    }
-    .card:hover {
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    .card-title-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-    .card-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* 今日 Top 3 任务大卡片 (占 7 栅格) */
-    .col-7 { grid-column: span 7; }
-    .col-5 { grid-column: span 5; }
-    .col-6 { grid-column: span 6; }
-    .col-12 { grid-column: span 12; }
-
-    .todo-list-compact {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .todo-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px;
-      background: var(--bg-surface-elevated);
-      border-radius: var(--radius-md);
-      border: 1px solid transparent;
-      transition: var(--transition);
-      cursor: pointer;
-    }
-    .todo-item:hover {
-      border-color: var(--border-subtle);
-      transform: translateX(2px);
-    }
-    .todo-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .checkbox-custom {
-      width: 18px;
-      height: 18px;
-      border-radius: var(--radius-sm);
-      border: 2px solid var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition);
-      cursor: pointer;
-    }
-    .todo-item:hover .checkbox-custom {
-      border-color: var(--accent-primary);
-    }
-    .checkbox-custom.checked {
-      background: var(--accent-emerald);
-      border-color: var(--accent-emerald);
-    }
-    .checkbox-custom.checked::after {
-      content: "✓";
-      color: white;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .todo-title {
-      font-size: 13px;
-      color: var(--text-main);
-    }
-    .todo-item.done .todo-title {
-      text-decoration: line-through;
-      color: var(--text-muted);
-    }
-
-    .tag-badge {
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: var(--radius-sm);
-      font-weight: 500;
-    }
-    .tag-p0 { background: rgba(239, 68, 68, 0.15); color: var(--p0-color); }
-    .tag-p1 { background: rgba(249, 115, 22, 0.15); color: var(--p1-color); }
-    .tag-p2 { background: rgba(59, 130, 246, 0.15); color: var(--p2-color); }
-
-    /* 番茄专注卡片 (占 5 栅格) */
-    .pomodoro-card-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 0;
-    }
-    .timer-ring-wrapper {
-      position: relative;
-      width: 140px;
-      height: 140px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-    .timer-circle-svg {
-      transform: rotate(-90deg);
-      width: 100%;
-      height: 100%;
-    }
-    .timer-circle-bg {
-      stroke: var(--bg-surface-elevated);
-      stroke-width: 8;
-      fill: none;
-    }
-    .timer-circle-progress {
-      stroke: var(--accent-primary);
-      stroke-width: 8;
-      stroke-dasharray: 377;
-      stroke-dashoffset: 75;
-      stroke-linecap: round;
-      fill: none;
-      transition: stroke-dashoffset 0.5s ease;
-    }
-    .timer-display-inner {
-      position: absolute;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .timer-digits {
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text-main);
-      font-variant-numeric: tabular-nums;
-    }
-    .timer-status-text {
-      font-size: 11px;
-      color: var(--accent-cyan);
-      margin-top: 2px;
-      font-weight: 500;
-    }
-
-    .pomodoro-controls {
-      display: flex;
-      gap: 10px;
-    }
-    .btn-action {
-      padding: 8px 18px;
-      border-radius: var(--radius-md);
-      font-size: 12px;
-      font-weight: 500;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: var(--transition);
-    }
-    .btn-primary {
-      background: var(--accent-primary);
-      color: white;
-      box-shadow: 0 2px 10px var(--accent-glow);
-    }
-    .btn-primary:hover {
-      filter: brightness(1.1);
-      transform: translateY(-1px);
-    }
-    .btn-secondary {
-      background: var(--bg-surface-elevated);
-      color: var(--text-secondary);
-      border: 1px solid var(--border-subtle);
-    }
-    .btn-secondary:hover {
-      background: var(--bg-hover);
-      color: var(--text-main);
-    }
-
-    /* 习惯追踪与 GitHub 热力图 */
-    .heatmap-grid {
-      display: grid;
-      grid-template-columns: repeat(28, 12px);
-      grid-template-rows: repeat(7, 12px);
-      gap: 4px;
-      padding: 8px 0;
-      overflow-x: auto;
-    }
-    .heatmap-cell {
-      width: 12px;
-      height: 12px;
-      border-radius: 2px;
-      background: var(--bg-surface-elevated);
-      transition: var(--transition);
-    }
-    .heatmap-cell.lvl-1 { background: #0E4429; }
-    .heatmap-cell.lvl-2 { background: #006D32; }
-    .heatmap-cell.lvl-3 { background: #26A641; }
-    .heatmap-cell.lvl-4 { background: #39D353; box-shadow: 0 0 5px rgba(57, 211, 83, 0.4); }
-
-    .habits-row {
-      display: flex;
-      gap: 12px;
-      margin-top: 14px;
-    }
-    .habit-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: var(--bg-surface-elevated);
-      border-radius: var(--radius-md);
-      font-size: 12px;
-      color: var(--text-secondary);
-      border: 1px solid var(--border-subtle);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .habit-pill.active {
-      border-color: var(--accent-emerald);
-      color: var(--text-main);
-      background: rgba(16, 185, 129, 0.1);
-    }
-
-    /* 灵感便签瀑布流预览 */
-    .memos-cards-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-    .memo-card-item {
-      background: var(--bg-surface-elevated);
-      border-radius: var(--radius-md);
-      padding: 12px;
-      border-left: 4px solid var(--accent-cyan);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 90px;
-    }
-    .memo-card-text {
-      font-size: 12px;
-      line-height: 1.5;
-      color: var(--text-main);
-    }
-    .memo-card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 8px;
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-    .convert-btn {
-      color: var(--accent-primary);
-      cursor: pointer;
-      font-size: 11px;
-    }
-    .convert-btn:hover {
-      text-decoration: underline;
-    }
-
-    /* Windows 贴边悬浮条模拟 (Dock) */
-    .edge-dock {
-      position: fixed;
-      right: 0;
-      top: 35%;
-      width: 6px;
-      height: 120px;
-      background: linear-gradient(180deg, var(--accent-primary), var(--accent-cyan));
-      border-radius: 4px 0 0 4px;
-      cursor: pointer;
-      box-shadow: -2px 0 10px rgba(99, 102, 241, 0.4);
-      transition: var(--transition);
-      z-index: 100;
-    }
-    .edge-dock:hover {
-      width: 260px;
-      height: 280px;
-      top: 30%;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-active);
-      border-right: none;
-      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-      padding: 16px;
-      box-shadow: -8px 0 30px rgba(0, 0, 0, 0.6);
-    }
-    .dock-content {
-      display: none;
-      flex-direction: column;
-      height: 100%;
-    }
-    .edge-dock:hover .dock-content {
-      display: flex;
-    }
-
-    /* 闪念胶囊弹窗模拟 (Alt + Space) */
-    .quick-capture-modal {
-      position: fixed;
-      top: 20%;
-      left: 50%;
-      transform: translateX(-50%) scale(0.95);
-      width: 620px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-active);
-      border-radius: var(--radius-lg);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), var(--shadow-glow);
-      padding: 16px 20px;
-      z-index: 200;
-      opacity: 0;
-      pointer-events: none;
-      transition: var(--transition);
-    }
-    .quick-capture-modal.open {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateX(-50%) scale(1);
-    }
-    .capsule-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      outline: none;
-      font-size: 16px;
-      color: var(--text-main);
-      padding: 4px 0;
-    }
-    .capsule-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px solid var(--border-subtle);
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      padding: 10px 18px;
-      background: var(--bg-surface-elevated);
-      border: 1px solid var(--border-active);
-      border-radius: var(--radius-md);
-      color: var(--text-main);
-      font-size: 12px;
-      box-shadow: var(--shadow-card);
-      transform: translateY(100px);
-      opacity: 0;
-      transition: var(--transition);
-      z-index: 300;
-    }
-    .toast.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  </style>
+/* 滚动条 */
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+</style>
 </head>
 <body>
 
-  <!-- 1. 模拟 Windows 沉浸式标题栏 -->
-  <div class="titlebar">
-    <div class="titlebar-brand">
-      <div class="brand-dot"></div>
-      <span>DailyDesk</span>
-      <span style="font-size: 10px; background: rgba(99,102,241,0.15); color: var(--accent-primary); padding: 1px 6px; border-radius: 4px;">v2.0 Pro</span>
-    </div>
-
-    <!-- 局域网 P2P 发现微胶囊 -->
-    <div class="sync-status-badge" id="syncBadge" title="点击查看局域网对端连接">
-      <div class="pulse-dot"></div>
-      <span>局域网已互联：Android-Pixel (192.168.1.108)</span>
-    </div>
-
-    <div class="titlebar-actions">
-      <span>已连续专注 52 天 🔥</span>
-      <div class="window-controls">
-        <button class="win-btn min" title="最小化"></button>
-        <button class="win-btn max" title="最大化"></button>
-        <button class="win-btn close" title="隐藏至托盘"></button>
-      </div>
-    </div>
+<!-- 标题栏 -->
+<div class="tbar">
+  <div class="tbar-l">
+    <div class="brand-dot"></div>
+    <span class="tbar-brand">DailyDesk</span>
+    <span style="font-size:9.5px;background:rgba(99,102,241,.12);color:var(--ac);padding:1px 5px;border-radius:3px">v2.0</span>
   </div>
+  <div class="sync-pill" onclick="toast('局域网设备在线：Android-Phone (2ms)')"><div class="sync-dot"></div>Android-Phone 已互联</div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span>🔥 连续专注 52 天</span>
+    <div class="win-btns"><button class="wb wb-m"></button><button class="wb wb-x"></button><button class="wb wb-c"></button></div>
+  </div>
+</div>
 
-  <!-- 2. 应用主视口 -->
-  <div class="app-container">
-    
-    <!-- 左侧导航 -->
-    <aside class="sidebar">
-      <button class="quick-capture-btn" id="openCaptureBtn">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span>⚡ 闪念极速记</span>
-        </div>
-        <span class="kbd-shortcut">Alt + Space</span>
-      </button>
+<!-- 主体 -->
+<div class="app">
+  <!-- 侧栏 -->
+  <aside class="side">
+    <button class="qc-btn" onclick="openCapsule()">
+      <span>⚡ 闪念极速记</span><span class="kbd">Alt+Space</span>
+    </button>
+    <div class="ng-title">核心空间</div>
+    <ul class="nav-list" id="navList">
+      <li class="ni act" data-page="pg-dash"><div class="ni-l"><span class="ni-i">📊</span>今日全景</div></li>
+      <li class="ni" data-page="pg-todo"><div class="ni-l"><span class="ni-i">🎯</span>待办清单 GTD</div><span class="ni-b">8</span></li>
+      <li class="ni" data-page="pg-cal"><div class="ni-l"><span class="ni-i">📅</span>时间块日历</div></li>
+      <li class="ni" data-page="pg-memo"><div class="ni-l"><span class="ni-i">💡</span>灵感随手记</div><span class="ni-b">9</span></li>
+    </ul>
+    <div class="ng-title" style="margin-top:12px">心流与复盘</div>
+    <ul class="nav-list">
+      <li class="ni" data-page="pg-pomo"><div class="ni-l"><span class="ni-i">⏱️</span>番茄白噪音</div></li>
+      <li class="ni" data-page="pg-habit"><div class="ni-l"><span class="ni-i">🌱</span>习惯热力图</div></li>
+      <li class="ni" data-page="pg-review"><div class="ni-l"><span class="ni-i">📝</span>晚间复盘</div></li>
+    </ul>
+    <div class="side-ft">
+      <button class="th-btn" id="thBtn">🌙 明暗切换</button>
+      <span>Ctrl+K 搜索</span>
+    </div>
+  </aside>
 
-      <div class="nav-group-title">核心空间</div>
-      <ul class="nav-list">
-        <li class="nav-item active">
-          <div class="nav-item-content">
-            <span class="nav-item-icon">📊</span>
-            <span>今日全景</span>
-          </div>
-        </li>
-        <li class="nav-item">
-          <div class="nav-item-content">
-            <span class="nav-item-icon">🎯</span>
-            <span>待办清单 (GTD)</span>
-          </div>
-          <span class="nav-badge">8</span>
-        </li>
-        <li class="nav-item">
-          <div class="nav-item-content">
-            <span class="nav-item-icon">📅</span>
-            <span>时间块日历</span>
-          </div>
-        </li>
-        <li class="nav-item">
-          <div class="nav-item-content">
-            <span class="nav-item-icon">💡</span>
-            <span>灵感随手记</span>
-          </div>
-          <span class="nav-badge">14</span>
-        </li>
-      </ul>
+  <!-- ========== 页面们 ========== -->
+  <main class="main">
 
-      <div class="nav-group-title" style="margin-top: 14px;">心流与复盘</div>
-      <ul class="nav-list">
-        <li class="nav-item">
-          <div class="nav-item-content">
-            <span class="nav-item-icon">⏱️</span>
-            <span>番茄白噪音</span>
-          </div>
-        </li>
-        <li class="nav-item">
-          <div class="nav-item-content">
-            <span class="nav-item-icon">🌱</span>
-            <span>习惯热力图</span>
-          </div>
-        </li>
-        <li class="nav-item">
-          <div class="nav-item-content">
-            <span class="nav-item-icon">📝</span>
-            <span>晚间日报复盘</span>
-          </div>
-        </li>
-      </ul>
-
-      <div class="sidebar-footer">
-        <button class="theme-toggle-btn" id="themeToggleBtn">
-          <span>🌙 明暗切换</span>
-        </button>
-        <span style="font-size: 11px;">按 Ctrl+K 搜索</span>
+    <!-- PAGE 1: 今日全景 仪表盘 -->
+    <div class="page show" id="pg-dash">
+      <div class="vh">
+        <div><h1>上午好，指挥官 👋</h1><p class="vh-sub">今天有 5 件待办，预计 4 个番茄钟。保持专注！</p></div>
+        <div class="search-bar" onclick="openCmd()">🔍 全局命令检索... <span class="kbd" style="margin-left:auto">Ctrl+K</span></div>
       </div>
-    </aside>
+      <!-- 统计条 -->
+      <div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
+        <div class="mini-stat"><div class="mini-stat-v">5</div><div class="mini-stat-l">今日待办</div></div>
+        <div class="mini-stat"><div class="mini-stat-v" style="color:var(--em)">3</div><div class="mini-stat-l">已完成</div></div>
+        <div class="mini-stat"><div class="mini-stat-v" style="color:var(--cy)">2.5h</div><div class="mini-stat-l">专注时长</div></div>
+        <div class="mini-stat"><div class="mini-stat-v" style="color:var(--am)">4/5</div><div class="mini-stat-l">习惯达成</div></div>
+      </div>
+      <div class="grid g7-5">
+        <!-- 今日 Top 任务 -->
+        <div class="card">
+          <div class="card-t"><h3>🎯 今日核心任务</h3><span style="font-size:11px;color:var(--em)">完成度 60%</span></div>
+          <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">完成 P2P 局域网增量同步核心模块</div><div class="todo-meta">预计 2 番茄 · 截止 15:00</div></div></div><div class="todo-r"><span class="tag t-p0">P0</span></div></div>
+          <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">对齐 Android 端 120Hz 高刷手势体验</div><div class="todo-meta">时间块 16:30-17:15</div></div></div><div class="todo-r"><span class="tag t-p1">P1</span></div></div>
+          <div class="todo done" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb ck"></div><div><div class="todo-tt">早会与任务池整理</div><div class="todo-meta">已于 09:30 完成</div></div></div><div class="todo-r"><span class="tag t-p2">P2</span></div></div>
+          <div class="todo done" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb ck"></div><div><div class="todo-tt">回复设计组邮件</div><div class="todo-meta">已于 10:15 完成</div></div></div><div class="todo-r"><span class="tag t-p3">P3</span></div></div>
+          <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">补充 SPEC 日历 iCal 导入导出段落</div><div class="todo-meta">截止 今天 18:00</div></div></div><div class="todo-r"><span class="tag t-p1">P1</span></div></div>
+        </div>
+        <!-- 番茄 + 环形 -->
+        <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div class="dash-ring"><svg viewBox="0 0 80 80"><circle class="bg" cx="40" cy="40" r="36"/><circle class="fg" cx="40" cy="40" r="36"/></svg><div class="dash-ring-txt">60%<div class="dash-ring-sub">今日完成率</div></div></div>
+          <div style="margin-top:14px;font-size:12px;color:var(--tx2);text-align:center">
+            <div style="margin-bottom:6px">⏱️ 当前专注: <strong style="color:var(--cy)">21:40</strong></div>
+            <div>🌧️ 雨声白噪音播放中</div>
+          </div>
+          <button class="btn btn-p btn-sm" style="margin-top:12px" onclick="switchPage('pg-pomo')">进入番茄钟 →</button>
+        </div>
+      </div>
+      <!-- 便签快照 -->
+      <div class="card">
+        <div class="card-t"><h3>💡 最新灵感</h3><span class="memo-act" onclick="switchPage('pg-memo')">查看全部 →</span></div>
+        <div class="grid g3">
+          <div class="memo memo-1"><div class="memo-txt">离线增量合并需要处理好微秒时间戳，防止手机和 PC 时钟不一致导致跳变。</div><div class="memo-ft"><span>#架构</span><span class="memo-act" onclick="toast('已转为待办')">转待办→</span></div></div>
+          <div class="memo memo-4"><div class="memo-txt">fl_chart 的折线图性能极好，可用于番茄钟周报表。</div><div class="memo-ft"><span>#UI库</span><span class="memo-act" onclick="toast('已转为待办')">转待办→</span></div></div>
+          <div class="memo memo-5"><div class="memo-txt">复盘增加"今日最感恩的一件事"，有助于提升心理幸福感。</div><div class="memo-ft"><span>#理念</span><span class="memo-act" onclick="toast('已转为待办')">转待办→</span></div></div>
+        </div>
+      </div>
+    </div>
 
-    <!-- 中间主工作区 -->
-    <main class="main-workspace">
-      
-      <!-- 问候与顶部搜索 -->
-      <div class="view-header">
+    <!-- PAGE 2: 待办清单 GTD -->
+    <div class="page" id="pg-todo">
+      <div class="vh"><div><h1>🎯 待办清单 (GTD)</h1><p class="vh-sub">四象限、收集箱与项目清单</p></div><button class="btn btn-p" onclick="openCapsule()">+ 新建任务</button></div>
+      <!-- 子 Tab -->
+      <div class="tabs">
+        <div class="tab act" onclick="switchSubTab(this,'todo-today')">今日聚焦</div>
+        <div class="tab" onclick="switchSubTab(this,'todo-inbox')">收集箱</div>
+        <div class="tab" onclick="switchSubTab(this,'todo-matrix')">四象限看板</div>
+        <div class="tab" onclick="switchSubTab(this,'todo-project')">项目分组</div>
+      </div>
+      <!-- 今日聚焦 -->
+      <div class="tab-body show" id="todo-today">
+        <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">完成 P2P 局域网增量同步核心模块</div><div class="todo-meta">截止 15:00 · 预计 2 番茄</div></div></div><div class="todo-r"><span class="tag t-p0">P0</span></div></div>
+        <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">对齐 Android 端 120Hz 高刷手势体验</div><div class="todo-meta">时间块 16:30-17:15</div></div></div><div class="todo-r"><span class="tag t-p1">P1</span></div></div>
+        <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">补充 SPEC 日历 iCal 导入导出段落</div><div class="todo-meta">截止 今天 18:00</div></div></div><div class="todo-r"><span class="tag t-p1">P1</span></div></div>
+        <div class="todo done" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb ck"></div><div><div class="todo-tt">早会与任务池整理</div><div class="todo-meta">已于 09:30 完成</div></div></div><div class="todo-r"><span class="tag t-p2">P2</span></div></div>
+        <div class="todo done" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb ck"></div><div><div class="todo-tt">回复设计组邮件</div><div class="todo-meta">已于 10:15 完成</div></div></div><div class="todo-r"><span class="tag t-p3">P3</span></div></div>
+        <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">阅读 LocalSend mDNS 源码分析</div><div class="todo-meta">无截止日期</div></div></div><div class="todo-r"><span class="tag t-p2">P2</span></div></div>
+        <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">整理本周学习笔记为 Markdown</div><div class="todo-meta">截止 周五</div></div></div><div class="todo-r"><span class="tag t-p3">P3</span></div></div>
+        <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">部署 SQLite WAL 性能压测脚本</div><div class="todo-meta">截止 明天 12:00</div></div></div><div class="todo-r"><span class="tag t-p1">P1</span></div></div>
+      </div>
+      <!-- 收集箱 -->
+      <div class="tab-body" id="todo-inbox">
+        <div class="card" style="text-align:center;padding:30px;color:var(--tx3)">
+          <div style="font-size:32px;margin-bottom:8px">📥</div>
+          <div style="font-size:13px;margin-bottom:12px">收集箱是你的灵感中转站</div>
+          <div style="font-size:11.5px;margin-bottom:16px;line-height:1.6">所有通过闪念胶囊 (Alt+Space) 快速记录的、尚未分配日期和优先级的任务，都会先落入这里。<br>定期清理收集箱，将任务分配到具体的日期和项目中。</div>
+          <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">研究 Riverpod code generation 模式</div><div class="todo-meta">来自闪念胶囊 · 3 小时前</div></div></div><div class="todo-r"><span class="tag t-p3">待分配</span></div></div>
+          <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">考虑 Drift 数据库迁移策略</div><div class="todo-meta">来自闪念胶囊 · 昨天</div></div></div><div class="todo-r"><span class="tag t-p3">待分配</span></div></div>
+          <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">买一箱气泡水</div><div class="todo-meta">来自闪念胶囊 · 昨天</div></div></div><div class="todo-r"><span class="tag t-p3">待分配</span></div></div>
+        </div>
+      </div>
+      <!-- 四象限 -->
+      <div class="tab-body" id="todo-matrix">
+        <div class="matrix">
+          <div class="quad" style="border-top:3px solid var(--p0)"><div class="quad-hdr"><span>🔴 紧急且重要</span><span class="tag t-p0">P0</span></div><div class="quad-items"><div class="quad-item">完成 P2P 增量同步核心</div><div class="quad-item">修复 SQLite 并发死锁</div></div></div>
+          <div class="quad" style="border-top:3px solid var(--p1)"><div class="quad-hdr"><span>🟠 重要不紧急</span><span class="tag t-p1">P1</span></div><div class="quad-items"><div class="quad-item">补充 iCal 导入导出段落</div><div class="quad-item">部署 WAL 性能压测脚本</div><div class="quad-item">对齐 Android 高刷手势</div></div></div>
+          <div class="quad" style="border-top:3px solid var(--p2)"><div class="quad-hdr"><span>🔵 紧急不重要</span><span class="tag t-p2">P2</span></div><div class="quad-items"><div class="quad-item">阅读 LocalSend mDNS 源码</div><div class="quad-item">回复合作商邮件</div></div></div>
+          <div class="quad" style="border-top:3px solid var(--p3)"><div class="quad-hdr"><span>⚪ 不紧急不重要</span><span class="tag t-p3">P3</span></div><div class="quad-items"><div class="quad-item">整理学习笔记</div><div class="quad-item">买气泡水</div></div></div>
+        </div>
+      </div>
+      <!-- 项目分组 -->
+      <div class="tab-body" id="todo-project">
+        <div class="grid g2">
+          <div class="card"><div class="card-t"><h3>💼 工作项目</h3><span style="font-size:11px;color:var(--tx3)">5 项</span></div>
+            <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">P2P 增量同步核心模块</div></div></div><div class="todo-r"><span class="tag t-p0">P0</span></div></div>
+            <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">Android 高刷手势对齐</div></div></div><div class="todo-r"><span class="tag t-p1">P1</span></div></div>
+            <div class="todo done" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb ck"></div><div><div class="todo-tt">早会与任务整理</div></div></div><div class="todo-r"><span class="tag t-p2">P2</span></div></div>
+          </div>
+          <div class="card"><div class="card-t"><h3>📚 学习成长</h3><span style="font-size:11px;color:var(--tx3)">3 项</span></div>
+            <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">阅读 LocalSend mDNS 源码</div></div></div><div class="todo-r"><span class="tag t-p2">P2</span></div></div>
+            <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">整理学习笔记</div></div></div><div class="todo-r"><span class="tag t-p3">P3</span></div></div>
+          </div>
+          <div class="card"><div class="card-t"><h3>🏠 生活杂事</h3><span style="font-size:11px;color:var(--tx3)">2 项</span></div>
+            <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">买一箱气泡水</div></div></div><div class="todo-r"><span class="tag t-p3">P3</span></div></div>
+            <div class="todo done" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb ck"></div><div><div class="todo-tt">交水电费</div></div></div><div class="todo-r"><span class="tag t-p3">P3</span></div></div>
+          </div>
+          <div class="card"><div class="card-t"><h3>🏋️ 健康运动</h3><span style="font-size:11px;color:var(--tx3)">1 项</span></div>
+            <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">晚间 3km 慢跑</div></div></div><div class="todo-r"><span class="tag t-p2">P2</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 3: 时间块日历 -->
+    <div class="page" id="pg-cal">
+      <div class="vh"><div><h1>📅 时间块日历</h1><p class="vh-sub">拖拽任务到时间轴，安排你的一天</p></div>
+        <div style="display:flex;gap:6px">
+          <div class="tab act" onclick="switchCalView(this,'cal-day')">日视图</div>
+          <div class="tab" onclick="switchCalView(this,'cal-month')">月视图</div>
+        </div>
+      </div>
+      <!-- 日视图 -->
+      <div id="cal-day" class="tab-body show">
+        <div class="grid" style="grid-template-columns:1fr 260px">
+          <div class="card">
+            <div class="cal-header">
+              <div class="cal-nav"><button class="cal-nav-btn">‹</button><span class="cal-month">2025年5月10日 · 周六</span><button class="cal-nav-btn">›</button></div>
+              <span style="font-size:11px;color:var(--ro);background:rgba(244,63,94,.1);padding:2px 8px;border-radius:var(--rf)">休</span>
+            </div>
+            <div class="timeline">
+              <div class="tl-row"><div class="tl-time">08:00</div><div class="tl-slot"></div></div>
+              <div class="tl-row"><div class="tl-time">09:00</div><div class="tl-slot"><div class="tl-block tl-b2">09:00-09:30 ☀️ 早会与任务池整理 ✓</div></div></div>
+              <div class="tl-row"><div class="tl-time">10:00</div><div class="tl-slot"><div class="tl-block tl-b1">10:00-12:00 🔧 P2P 增量同步模块开发 (2 番茄)</div></div></div>
+              <div class="tl-row"><div class="tl-time">11:00</div><div class="tl-slot"></div></div>
+              <div class="tl-row"><div class="tl-time">12:00</div><div class="tl-slot" style="color:var(--tx3);font-size:11px;padding-top:12px">—— 午休 ——</div></div>
+              <div class="tl-row"><div class="tl-time">13:00</div><div class="tl-slot"></div></div>
+              <div class="tl-row"><div class="tl-time">14:00</div><div class="tl-slot"><div class="tl-block tl-b1">14:00-15:00 🔧 P2P 冲突合并引擎调试 (1 番茄)</div></div></div>
+              <div class="tl-row"><div class="tl-time">15:00</div><div class="tl-slot"><div class="tl-block tl-b3">15:00-15:30 ☕ 休息 + 代码审查</div></div></div>
+              <div class="tl-row"><div class="tl-time">16:00</div><div class="tl-slot"></div></div>
+              <div class="tl-row"><div class="tl-time">16:30</div><div class="tl-slot"><div class="tl-block tl-b2">16:30-17:15 📱 对齐 Android 高刷手势</div></div></div>
+              <div class="tl-row"><div class="tl-time">17:00</div><div class="tl-slot"></div></div>
+              <div class="tl-row"><div class="tl-time">18:00</div><div class="tl-slot"><div class="tl-block tl-b3">18:00-18:30 📝 SPEC 补充 iCal 段落</div></div></div>
+              <div class="tl-row"><div class="tl-time">19:00</div><div class="tl-slot"></div></div>
+              <div class="tl-row"><div class="tl-time">20:00</div><div class="tl-slot"></div></div>
+              <div class="tl-row"><div class="tl-time">21:00</div><div class="tl-slot" style="color:var(--am);font-size:11px;padding-top:12px">📝 21:00 晚间自动复盘</div></div>
+            </div>
+          </div>
+          <!-- 待排期任务抽屉 -->
+          <div class="card">
+            <div class="card-t"><h3>📋 未排期任务</h3></div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:10px">拖拽到左侧时间轴排期 ↙</div>
+            <div class="quad-item" draggable="true">阅读 LocalSend mDNS 源码</div>
+            <div class="quad-item" draggable="true" style="margin-top:5px">整理学习笔记</div>
+            <div class="quad-item" draggable="true" style="margin-top:5px">WAL 性能压测脚本</div>
+            <div class="quad-item" draggable="true" style="margin-top:5px">买一箱气泡水</div>
+          </div>
+        </div>
+      </div>
+      <!-- 月视图 -->
+      <div id="cal-month" class="tab-body">
+        <div class="card">
+          <div class="cal-header"><div class="cal-nav"><button class="cal-nav-btn">‹</button><span class="cal-month">2025年5月</span><button class="cal-nav-btn">›</button></div></div>
+          <div class="cal-grid-month" id="calMonthGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 4: 灵感便签 -->
+    <div class="page" id="pg-memo">
+      <div class="vh"><div><h1>💡 灵感随手记</h1><p class="vh-sub">碎片化灵感 · Markdown · 一键转待办</p></div><button class="btn btn-p" onclick="openCapsule()">+ 新便签</button></div>
+      <div class="memo-grid">
+        <div class="memo memo-1"><div class="memo-txt">离线增量合并需要处理好微秒时间戳，手机和 PC 时钟不一致时用逻辑时钟防跳变。关键词：**Lamport Clock**。</div><div class="memo-ft"><span>10 分钟前 · #架构</span><span class="memo-act" onclick="toast('已转为待办')">转待办→</span></div></div>
+        <div class="memo memo-2"><div class="memo-txt">`flutter_slidable` 的 `ActionPane` 支持多种展开模式：<br>- `DrawerMotion` (抽屉式)<br>- `BehindMotion` (背后平滑)</div><div class="memo-ft"><span>30 分钟前 · #Flutter</span><span class="memo-act" onclick="toast('已转为待办')">转待办→</span></div></div>
+        <div class="memo memo-3"><div class="memo-txt">fl_chart 的折线图性能极好，60fps 完全不卡，可用于番茄钟周报表与专注趋势图。</div><div class="memo-ft"><span>今天 09:12 · #UI库</span><span class="memo-act" onclick="toast('已转为待办')">转待办→</span></div></div>
+        <div class="memo memo-4"><div class="memo-txt">晚间复盘增加一个"今日最感恩的一件事"，有助于提升心理幸福感与情绪稳定性。</div><div class="memo-ft"><span>昨天 · #理念</span><span class="memo-act" onclick="toast('已转为待办')">转待办→</span></div></div>
+        <div class="memo memo-5"><div class="memo-txt">番茄钟的休息阶段可以推送一条健康提醒：起身活动一下、远眺 20 秒（20-20-20 法则）。</div><div class="memo-ft"><span>昨天 · #健康</span><span class="memo-act" onclick="toast('已转为待办')">转待办→</span></div></div>
+        <div class="memo memo-6"><div class="memo-txt">SQLite WAL 模式下的读写并发：读操作看到的是开始时的快照，写操作追加到 WAL 文件。</div><div class="memo-ft"><span>2 天前 · #数据库</span><span class="memo-act" onclick="toast('已转为待办')">转待办→</span></div></div>
+        <div class="memo memo-1"><div class="memo-txt">mDNS 服务类型命名规范：`_dailydesk._tcp`，端口 53317，避免与 LocalSend 冲突。</div><div class="memo-ft"><span>2 天前 · #网络</span><span class="memo-act" onclick="toast('已转为待办')">转待办→</span></div></div>
+        <div class="memo memo-3"><div class="memo-txt">考虑给习惯打卡增加一个"弹性达标"机制：每周目标 5 次，允许任意 5 天完成即可。</div><div class="memo-ft"><span>3 天前 · #产品</span><span class="memo-act" onclick="toast('已转为待办')">转待办→</span></div></div>
+        <div class="memo-new" onclick="openCapsule()">+ 记录新灵感</div>
+      </div>
+    </div>
+
+    <!-- PAGE 5: 番茄白噪音 -->
+    <div class="page" id="pg-pomo">
+      <div class="vh"><div><h1>⏱️ 深度专注 · 番茄白噪音</h1><p class="vh-sub">心流模式，告别杂念</p></div></div>
+      <div class="grid g7-5">
+        <div class="card">
+          <div class="pomo-center">
+            <div class="pomo-ring">
+              <svg viewBox="0 0 200 200"><circle class="bg" cx="100" cy="100" r="90"/><circle class="fg" cx="100" cy="100" r="90" id="pomoCircle" style="stroke-dashoffset:113"/></svg>
+              <div class="pomo-inner"><div class="pomo-digits" id="pomoDigits">21:40</div><div class="pomo-label">专注中 (第 2/4 个番茄)</div></div>
+            </div>
+            <div class="pomo-ctrls">
+              <button class="btn btn-p" id="pomoBtn" onclick="togglePomo()">⏸️ 暂停</button>
+              <button class="btn btn-s" onclick="toast('已跳过当前番茄')">⏭️ 跳过</button>
+              <button class="btn btn-s" onclick="toast('计时器已重置')">🔄 重置</button>
+            </div>
+            <div class="pomo-task">🎯 当前关联任务：<strong style="color:var(--tx);margin-left:4px">P2P 增量同步核心模块</strong></div>
+            <div class="noise-bar">
+              <div class="noise-chip act" onclick="selNoise(this)">🌧️ 雨声</div>
+              <div class="noise-chip" onclick="selNoise(this)">🔥 柴火</div>
+              <div class="noise-chip" onclick="selNoise(this)">☕ 咖啡馆</div>
+              <div class="noise-chip" onclick="selNoise(this)">🌊 海浪</div>
+              <div class="noise-chip" onclick="selNoise(this)">🔇 静音</div>
+            </div>
+          </div>
+        </div>
         <div>
-          <h1 class="greeting-title">上午好，指挥官 👋</h1>
-          <p class="greeting-sub">今天有 3 件核心事项，预计需要 5 个番茄钟。保持专注！</p>
-        </div>
-        <div class="search-command-bar" id="commandBarBtn">
-          <span>🔍</span>
-          <span>全局命令检索...</span>
-          <span class="kbd-shortcut" style="margin-left: auto;">Ctrl + K</span>
-        </div>
-      </div>
-
-      <!-- 网格仪表盘 -->
-      <div class="dashboard-grid">
-        
-        <!-- 今日核心聚焦待办 (7 栅格) -->
-        <div class="card col-7">
-          <div class="card-title-bar">
-            <div class="card-title">
-              <span>🎯 今日 Top 3 核心任务</span>
-            </div>
-            <span style="font-size: 11px; color: var(--accent-emerald);">完成度 66%</span>
+          <div class="card"><div class="card-t"><h3>📊 今日专注数据</h3></div>
+            <div class="pomo-stats"><div class="mini-stat"><div class="mini-stat-v" style="color:var(--ac2)">5</div><div class="mini-stat-l">番茄数</div></div><div class="mini-stat"><div class="mini-stat-v" style="color:var(--cy)">2.5h</div><div class="mini-stat-l">总时长</div></div><div class="mini-stat"><div class="mini-stat-v" style="color:var(--em)">3</div><div class="mini-stat-l">完成任务</div></div><div class="mini-stat"><div class="mini-stat-v" style="color:var(--am)">85%</div><div class="mini-stat-l">专注率</div></div></div>
           </div>
-
-          <div class="todo-list-compact">
-            <div class="todo-item" onclick="toggleTask(this)">
-              <div class="todo-left">
-                <div class="checkbox-custom"></div>
-                <div>
-                  <div class="todo-title">完成工作台局域网 P2P 同步协议模块开发</div>
-                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">预计耗时 2 番茄 · 截止 15:00</div>
-                </div>
-              </div>
-              <span class="tag-badge tag-p0">P0 紧急</span>
-            </div>
-
-            <div class="todo-item" onclick="toggleTask(this)">
-              <div class="todo-left">
-                <div class="checkbox-custom"></div>
-                <div>
-                  <div class="todo-title">与设计团队对齐 Android 端 120Hz 高刷手势细节</div>
-                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">时间块: 16:30 - 17:15</div>
-                </div>
-              </div>
-              <span class="tag-badge tag-p1">P1 重要</span>
-            </div>
-
-            <div class="todo-item done" onclick="toggleTask(this)">
-              <div class="todo-left">
-                <div class="checkbox-custom checked"></div>
-                <div>
-                  <div class="todo-title">每日早会与任务池整理</div>
-                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">已于 09:30 完成</div>
-                </div>
-              </div>
-              <span class="tag-badge tag-p2">P2 日常</span>
+          <div class="card"><div class="card-t"><h3>⏱️ 模式选择</h3></div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div class="tab act" style="justify-content:space-between;display:flex;padding:8px 12px">🍅 经典番茄 25+5 <span class="kbd">默认</span></div>
+              <div class="tab" style="display:flex;padding:8px 12px" onclick="toast('已切换为心流正计时模式')">🌊 心流正计时</div>
+              <div class="tab" style="display:flex;padding:8px 12px" onclick="toast('已切换为 45 分钟倒计时')">⏳ 倒计时 45min</div>
+              <div class="tab" style="display:flex;padding:8px 12px" onclick="toast('已切换为 60 分钟倒计时')">⏳ 倒计时 60min</div>
             </div>
           </div>
         </div>
-
-        <!-- 沉浸番茄钟 (5 栅格) -->
-        <div class="card col-5">
-          <div class="card-title-bar">
-            <div class="card-title">
-              <span>⏱️ 深度专注心流</span>
-            </div>
-            <span style="font-size: 11px; color: var(--text-muted);">🌧️ 雨声白噪音开启中</span>
-          </div>
-
-          <div class="pomodoro-card-content">
-            <div class="timer-ring-wrapper">
-              <svg class="timer-circle-svg" viewBox="0 0 140 140">
-                <circle class="timer-circle-bg" cx="70" cy="70" r="60"></circle>
-                <circle class="timer-circle-progress" id="timerCircle" cx="70" cy="70" r="60"></circle>
-              </svg>
-              <div class="timer-display-inner">
-                <div class="timer-digits" id="timerText">21:40</div>
-                <div class="timer-status-text">进行中 (第 2/4 个番茄)</div>
-              </div>
-            </div>
-
-            <div class="pomodoro-controls">
-              <button class="btn-action btn-primary" id="timerPlayBtn" onclick="toggleTimer()">⏸️ 暂停专注</button>
-              <button class="btn-action btn-secondary" onclick="showToast('白噪音切换为：咖啡馆')">☕ 换声音</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 习惯年度热力图 (占 12 栅格) -->
-        <div class="card col-12">
-          <div class="card-title-bar">
-            <div class="card-title">
-              <span>🌱 习惯养成与每日投入 (近 28 周全景)</span>
-            </div>
-            <span style="font-size: 11px; color: var(--text-muted);">当前连续 52 天 · 最佳纪录 98 天</span>
-          </div>
-
-          <!-- 热力图网格 -->
-          <div class="heatmap-grid" id="heatmapGrid"></div>
-
-          <!-- 习惯快速打卡条 -->
-          <div class="habits-row">
-            <div class="habit-pill active" onclick="this.classList.toggle('active')">
-              <span>💧 饮水 2000ml</span>
-              <span style="color:var(--accent-emerald);">✓</span>
-            </div>
-            <div class="habit-pill active" onclick="this.classList.toggle('active')">
-              <span>📖 技术阅读 30min</span>
-              <span style="color:var(--accent-emerald);">✓</span>
-            </div>
-            <div class="habit-pill" onclick="this.classList.toggle('active')">
-              <span>🏃‍♂️ 晚间慢跑 3km</span>
-              <span>待打卡</span>
-            </div>
-            <div class="habit-pill" onclick="this.classList.toggle('active')">
-              <span>🌙 23:30 前熄灯</span>
-              <span>待打卡</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 灵感便签流预览 (12 栅格) -->
-        <div class="card col-12">
-          <div class="card-title-bar">
-            <div class="card-title">
-              <span>💡 灵感碎片随手记</span>
-            </div>
-            <span style="font-size: 11px; color: var(--accent-primary); cursor: pointer;" onclick="openCapture()">+ 新增便签</span>
-          </div>
-
-          <div class="memos-cards-row">
-            <div class="memo-card-item">
-              <div class="memo-card-text">
-                离线增量合并务必处理好微秒时间戳，手机和 PC 如果时钟不一致，需要用逻辑时钟防跳变。
-              </div>
-              <div class="memo-card-footer">
-                <span>10分钟前 · #架构思考</span>
-                <span class="convert-btn" onclick="showToast('已成功转为待办事项！')">转待办 →</span>
-              </div>
-            </div>
-
-            <div class="memo-card-item" style="border-left-color: var(--accent-amber);">
-              <div class="memo-card-text">
-                推荐用 fl_chart 做番茄钟折线图，性能极好，每秒 60 帧完全不卡。
-              </div>
-              <div class="memo-card-footer">
-                <span>今天 09:12 · #UI库备选</span>
-                <span class="convert-btn" onclick="showToast('已成功转为待办事项！')">转待办 →</span>
-              </div>
-            </div>
-
-            <div class="memo-card-item" style="border-left-color: var(--accent-rose);">
-              <div class="memo-card-text">
-                晚间复盘增加一个“今日最感恩的一件事”，有助于提升心理幸福感。
-              </div>
-              <div class="memo-card-footer">
-                <span>昨天 · #生活理念</span>
-                <span class="convert-btn" onclick="showToast('已成功转为待办事项！')">转待办 →</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-    </main>
-
-  </div>
-
-  <!-- 3. Windows 桌面贴边悬浮条模拟 (鼠标悬浮在屏幕右侧滑出) -->
-  <div class="edge-dock" id="edgeDock" title="桌面悬浮挂件 (鼠标滑入展开)">
-    <div class="dock-content">
-      <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px; color: var(--text-main);">
-        ⏱️ 正在专注: 21:40
-      </div>
-      <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
-        任务: 工作台 P2P 协议开发
-      </div>
-      <div style="font-size: 11px; font-weight:600; color:var(--text-secondary); margin-bottom:6px;">
-        待办置顶 Top 2:
-      </div>
-      <div style="font-size: 11px; padding: 6px; background: var(--bg-surface-elevated); border-radius: 4px; margin-bottom: 4px;">
-        [ ] 完成 P2P 单元测试
-      </div>
-      <div style="font-size: 11px; padding: 6px; background: var(--bg-surface-elevated); border-radius: 4px;">
-        [ ] 对齐 Android 手势设计
-      </div>
-      <button class="btn-action btn-primary" style="margin-top: auto; padding: 6px 10px; font-size: 11px;" onclick="showToast('主窗口已呼出')">
-        展开主看板 ↗
-      </button>
-    </div>
-  </div>
-
-  <!-- 4. 闪念胶囊极速记录弹窗 (模拟 Alt + Space 呼出) -->
-  <div class="quick-capture-modal" id="captureModal">
-    <input type="text" class="capsule-input" id="capsuleInput" placeholder="⚡ 记录一笔待办或灵感 (支持自然语言，如: 明天下午3点开会 !P0 #工作)...">
-    <div class="capsule-footer">
-      <span>💡 支持自然语言时间解析与标签提取</span>
-      <div>
-        <span class="kbd-shortcut">Enter 保存</span>
-        <span class="kbd-shortcut" style="margin-left: 4px;">Esc 关闭</span>
       </div>
     </div>
+
+    <!-- PAGE 6: 习惯热力图 -->
+    <div class="page" id="pg-habit">
+      <div class="vh"><div><h1>🌱 习惯养成与热力图</h1><p class="vh-sub">GitHub 风格年度打卡追踪 · 连续 52 天</p></div><button class="btn btn-p" onclick="toast('新习惯已添加')">+ 添加习惯</button></div>
+      <div class="card">
+        <div class="card-t"><h3>🟩 年度打卡热力图 (近 26 周)</h3><span style="font-size:11px;color:var(--tx3)">最佳纪录 98 天 · 当前 52 天 🔥</span></div>
+        <div class="hm-grid" id="hmGrid"></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10px;color:var(--tx3)">
+          <span>少</span>
+          <div class="hm-c" style="display:inline-block;width:10px;height:10px"></div>
+          <div class="hm-c l1" style="display:inline-block;width:10px;height:10px"></div>
+          <div class="hm-c l2" style="display:inline-block;width:10px;height:10px"></div>
+          <div class="hm-c l3" style="display:inline-block;width:10px;height:10px"></div>
+          <div class="hm-c l4" style="display:inline-block;width:10px;height:10px"></div>
+          <span>多</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-t"><h3>✅ 今日打卡</h3><span style="font-size:11px;color:var(--em)">3/5 已完成</span></div>
+        <div class="habit-list">
+          <div class="habit-row" onclick="toggleHabit(this)"><div class="habit-l"><div class="habit-icon" style="background:rgba(6,182,212,.15)">💧</div><div><div class="habit-name">饮水 2000ml</div><div class="habit-streak">已连续 52 天</div></div></div><div class="habit-ck-btn done">✓ 已打卡</div></div>
+          <div class="habit-row" onclick="toggleHabit(this)"><div class="habit-l"><div class="habit-icon" style="background:rgba(99,102,241,.15)">📖</div><div><div class="habit-name">技术阅读 30 分钟</div><div class="habit-streak">已连续 38 天</div></div></div><div class="habit-ck-btn done">✓ 已打卡</div></div>
+          <div class="habit-row" onclick="toggleHabit(this)"><div class="habit-l"><div class="habit-icon" style="background:rgba(16,185,129,.15)">🏃</div><div><div class="habit-name">晚间慢跑 3km</div><div class="habit-streak">已连续 12 天</div></div></div><div class="habit-ck-btn done">✓ 已打卡</div></div>
+          <div class="habit-row" onclick="toggleHabit(this)"><div class="habit-l"><div class="habit-icon" style="background:rgba(245,158,11,.15)">🌙</div><div><div class="habit-name">23:30 前熄灯</div><div class="habit-streak">已连续 8 天</div></div></div><div class="habit-ck-btn pending">待打卡</div></div>
+          <div class="habit-row" onclick="toggleHabit(this)"><div class="habit-l"><div class="habit-icon" style="background:rgba(244,63,94,.15)">🧘</div><div><div class="habit-name">冥想 10 分钟</div><div class="habit-streak">已连续 3 天</div></div></div><div class="habit-ck-btn pending">待打卡</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 7: 晚间复盘 -->
+    <div class="page" id="pg-review">
+      <div class="vh"><div><h1>📝 今日复盘日报</h1><p class="vh-sub">2025年5月10日 · 系统自动汇总 + 手动感悟</p></div>
+        <div style="display:flex;gap:6px"><button class="btn btn-s" onclick="toast('已复制 Markdown 到剪贴板')">📋 复制 Markdown</button><button class="btn btn-p" onclick="toast('已导出为文件')">💾 导出</button></div>
+      </div>
+      <div class="review-summary">
+        <div class="rv-box"><div class="rv-val" style="color:var(--em)">3 / 5</div><div class="rv-lab">任务完成</div></div>
+        <div class="rv-box"><div class="rv-val" style="color:var(--cy)">2.5h</div><div class="rv-lab">专注时长</div></div>
+        <div class="rv-box"><div class="rv-val" style="color:var(--am)">5</div><div class="rv-lab">番茄数</div></div>
+        <div class="rv-box"><div class="rv-val" style="color:var(--ac2)">3/5</div><div class="rv-lab">习惯达成</div></div>
+      </div>
+      <div class="grid g2">
+        <div class="card">
+          <div class="review-section"><h4>✅ 今日已完成</h4>
+            <div class="review-list">
+              <div class="rv-item"><span class="rv-done">✓</span>早会与任务池整理</div>
+              <div class="rv-item"><span class="rv-done">✓</span>回复设计组邮件</div>
+              <div class="rv-item"><span class="rv-done">✓</span>P2P 增量同步模块 (第一阶段)</div>
+            </div>
+          </div>
+          <div class="review-section"><h4>❌ 未完成 / 逾期</h4>
+            <div class="review-list">
+              <div class="rv-item"><span class="rv-miss">✗</span>补充 SPEC iCal 段落 <span class="tag t-p1" style="margin-left:auto">推迟至明天</span></div>
+              <div class="rv-item"><span class="rv-miss">✗</span>Android 高刷手势对齐 <span class="tag t-p1" style="margin-left:auto">推迟至明天</span></div>
+            </div>
+          </div>
+          <div class="review-section"><h4>🌱 习惯打卡状态</h4>
+            <div class="review-list">
+              <div class="rv-item"><span class="rv-done">✓</span>💧 饮水 2000ml</div>
+              <div class="rv-item"><span class="rv-done">✓</span>📖 技术阅读 30min</div>
+              <div class="rv-item"><span class="rv-done">✓</span>🏃 晚间慢跑 3km</div>
+              <div class="rv-item"><span class="rv-miss">✗</span>🌙 23:30 前熄灯</div>
+              <div class="rv-item"><span class="rv-miss">✗</span>🧘 冥想 10 分钟</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card"><div class="review-section"><h4>💭 今日得失反思</h4>
+            <textarea class="rv-textarea" placeholder="今天有哪些事情做得好？哪些可以改进？主要干扰项是什么？">今天上午的 P2P 模块开发效率很高，2 个番茄就完成了第一阶段。主要干扰是下午临时插入的邮件回复，打断了心流。明天要把邮件集中到固定时间段处理。</textarea></div>
+          </div>
+          <div class="card"><div class="review-section"><h4>🙏 今日最感恩的一件事</h4>
+            <textarea class="rv-textarea" style="min-height:60px" placeholder="写下今天让你感到感恩或开心的一件事...">同事主动帮忙 review 了代码，发现了一个潜在的并发问题，节省了我很多调试时间。</textarea></div>
+          </div>
+          <div class="card"><div class="review-section"><h4>🎯 明日 Top 3 核心任务</h4>
+            <div class="review-list">
+              <div class="rv-item"><span>1.</span><strong style="margin-left:4px">补充 SPEC iCal 导入导出段落</strong></div>
+              <div class="rv-item"><span>2.</span><strong style="margin-left:4px">对齐 Android 高刷手势体验</strong></div>
+              <div class="rv-item"><span>3.</span><strong style="margin-left:4px">部署 WAL 性能压测脚本</strong></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- 悬浮 Dock -->
+<div class="dock"><div class="dock-c">
+  <div style="font-size:12px;font-weight:600;margin-bottom:6px">⏱️ 正在专注: <span style="color:var(--cy)">21:40</span></div>
+  <div style="font-size:10.5px;color:var(--tx3);margin-bottom:10px">任务: P2P 增量同步模块</div>
+  <div style="font-size:10.5px;font-weight:600;color:var(--tx2);margin-bottom:5px">待办 Top 2:</div>
+  <div class="quad-item" style="font-size:10.5px;padding:5px 8px">[ ] Android 高刷手势对齐</div>
+  <div class="quad-item" style="font-size:10.5px;padding:5px 8px;margin-top:3px">[ ] 补充 SPEC iCal 段落</div>
+  <button class="btn btn-p btn-sm" style="margin-top:auto" onclick="switchPage('pg-dash')">展开主看板 ↗</button>
+</div></div>
+
+<!-- 闪念胶囊 -->
+<div class="capsule-overlay" id="capOv" onclick="closeCapsule()"></div>
+<div class="capsule" id="capMod">
+  <input type="text" id="capIn" placeholder="⚡ 记录待办或灵感 (如: 明天下午3点开会 !P0 #工作)...">
+  <div class="capsule-ft"><span>💡 自然语言时间与标签自动解析</span><div><span class="kbd">Enter 保存</span> <span class="kbd">Esc 关闭</span></div></div>
+</div>
+
+<!-- 命令面板 -->
+<div class="cmd-overlay" id="cmdOv" onclick="closeCmd()"></div>
+<div class="cmd-panel" id="cmdPanel">
+  <div class="cmd-input-wrap"><input type="text" id="cmdIn" placeholder="输入命令或搜索..." oninput="filterCmd(this.value)"></div>
+  <div class="cmd-list" id="cmdList">
+    <div class="cmd-item" onclick="switchPage('pg-dash');closeCmd()"><span class="cmd-icon">📊</span>跳转到 今日全景</div>
+    <div class="cmd-item" onclick="switchPage('pg-todo');closeCmd()"><span class="cmd-icon">🎯</span>跳转到 待办清单</div>
+    <div class="cmd-item" onclick="switchPage('pg-cal');closeCmd()"><span class="cmd-icon">📅</span>跳转到 时间块日历</div>
+    <div class="cmd-item" onclick="switchPage('pg-memo');closeCmd()"><span class="cmd-icon">💡</span>跳转到 灵感便签</div>
+    <div class="cmd-item" onclick="switchPage('pg-pomo');closeCmd()"><span class="cmd-icon">⏱️</span>跳转到 番茄钟</div>
+    <div class="cmd-item" onclick="switchPage('pg-habit');closeCmd()"><span class="cmd-icon">🌱</span>跳转到 习惯热力图</div>
+    <div class="cmd-item" onclick="switchPage('pg-review');closeCmd()"><span class="cmd-icon">📝</span>跳转到 晚间复盘</div>
+    <div class="cmd-item" onclick="openCapsule();closeCmd()"><span class="cmd-icon">⚡</span>快速新建任务<span class="cmd-key">Alt+Space</span></div>
+    <div class="cmd-item" onclick="toast('已清空所有已完成任务');closeCmd()"><span class="cmd-icon">🗑️</span>清空已完成待办</div>
+    <div class="cmd-item" onclick="toast('开始 25 分钟番茄钟');closeCmd()"><span class="cmd-icon">🍅</span>开始 25 分钟专注</div>
+    <div class="cmd-item" onclick="toast('已触发局域网同步');closeCmd()"><span class="cmd-icon">🔄</span>立即局域网同步</div>
+    <div class="cmd-item" onclick="toast('数据已导出为 Markdown');closeCmd()"><span class="cmd-icon">💾</span>导出今日复盘</div>
   </div>
+</div>
 
-  <!-- 5. 提示信息浮层 -->
-  <div class="toast" id="toastMsg">操作已完成</div>
+<div class="toast" id="toastEl"></div>
 
-  <script>
-    // 1. 初始化热力图方块
-    const heatmap = document.getElementById('heatmapGrid');
-    const levels = ['lvl-1', 'lvl-2', 'lvl-3', 'lvl-4', ''];
-    for (let i = 0; i < 28 * 7; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'heatmap-cell';
-      const random = Math.random();
-      if (random > 0.6) cell.classList.add('lvl-4');
-      else if (random > 0.4) cell.classList.add('lvl-3');
-      else if (random > 0.25) cell.classList.add('lvl-2');
-      else if (random > 0.1) cell.classList.add('lvl-1');
-      heatmap.appendChild(cell);
-    }
+<script>
+// 页面切换
+function switchPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+  document.querySelectorAll('#navList .ni, .side .ni').forEach(n=>{
+    n.classList.toggle('act',n.dataset.page===id);
+  });
+}
+document.querySelectorAll('.ni[data-page]').forEach(n=>{
+  n.addEventListener('click',()=>switchPage(n.dataset.page));
+});
 
-    // 2. 闪念胶囊弹窗控制
-    const captureModal = document.getElementById('captureModal');
-    const capsuleInput = document.getElementById('capsuleInput');
+// 子 Tab
+function switchSubTab(el,id){
+  el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));
+  el.classList.add('act');
+  const bodies=el.parentElement.nextElementSibling?null:null;
+  document.querySelectorAll('#pg-todo .tab-body').forEach(b=>b.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+function switchCalView(el,id){
+  el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));
+  el.classList.add('act');
+  document.querySelectorAll('#pg-cal .tab-body').forEach(b=>b.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
 
-    function openCapture() {
-      captureModal.classList.add('open');
-      setTimeout(() => capsuleInput.focus(), 50);
-    }
-    function closeCapture() {
-      captureModal.classList.remove('open');
-      capsuleInput.value = '';
-    }
+// 待办勾选
+function toggleTodo(el){
+  el.classList.toggle('done');
+  const c=el.querySelector('.ckb');c.classList.toggle('ck');
+  if(el.classList.contains('done'))toast('🎉 完成了一项任务！');
+}
 
-    document.getElementById('openCaptureBtn').onclick = openCapture;
-    document.getElementById('commandBarBtn').onclick = () => {
-      showToast('快捷命令面板已唤起 (Ctrl + K)');
-    };
+// 闪念胶囊
+function openCapsule(){document.getElementById('capOv').classList.add('open');document.getElementById('capMod').classList.add('open');setTimeout(()=>document.getElementById('capIn').focus(),60)}
+function closeCapsule(){document.getElementById('capOv').classList.remove('open');document.getElementById('capMod').classList.remove('open');document.getElementById('capIn').value=''}
 
-    // 全局快捷键监听 (Alt + Space 模拟)
-    window.addEventListener('keydown', (e) => {
-      if (e.altKey && e.code === 'Space') {
-        e.preventDefault();
-        captureModal.classList.contains('open') ? closeCapture() : openCapture();
-      } else if (e.code === 'Escape') {
-        closeCapture();
-      } else if (e.key === 'Enter' && captureModal.classList.contains('open')) {
-        const text = capsuleInput.value.trim();
-        if (text) {
-          showToast(`已成功保存: "${text}"`);
-          closeCapture();
-        }
-      }
-    });
+// 命令面板
+function openCmd(){document.getElementById('cmdOv').classList.add('open');document.getElementById('cmdPanel').classList.add('open');setTimeout(()=>document.getElementById('cmdIn').focus(),60)}
+function closeCmd(){document.getElementById('cmdOv').classList.remove('open');document.getElementById('cmdPanel').classList.remove('open');document.getElementById('cmdIn').value='';filterCmd('')}
+function filterCmd(v){
+  const items=document.querySelectorAll('.cmd-item');
+  items.forEach(i=>{i.style.display=v===''||i.textContent.toLowerCase().includes(v.toLowerCase())?'flex':'none'});
+}
 
-    // 3. 待办完成与取消交互
-    function toggleTask(elem) {
-      elem.classList.toggle('done');
-      const box = elem.querySelector('.checkbox-custom');
-      box.classList.toggle('checked');
-      if (elem.classList.contains('done')) {
-        showToast('🎉 太棒了，完成了一项任务！');
-      }
-    }
+// 快捷键
+window.addEventListener('keydown',e=>{
+  if(e.altKey&&e.code==='Space'){e.preventDefault();document.getElementById('capMod').classList.contains('open')?closeCapsule():openCapsule()}
+  else if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('cmdPanel').classList.contains('open')?closeCmd():openCmd()}
+  else if(e.code==='Escape'){closeCapsule();closeCmd()}
+  else if(e.key==='Enter'&&document.getElementById('capMod').classList.contains('open')){const t=document.getElementById('capIn').value.trim();if(t){toast('已保存: "'+t+'"');closeCapsule()}}
+});
 
-    // 4. 番茄钟暂停/恢复交互
-    let isTimerRunning = true;
-    function toggleTimer() {
-      const btn = document.getElementById('timerPlayBtn');
-      if (isTimerRunning) {
-        btn.innerHTML = '▶️ 继续专注';
-        btn.classList.remove('btn-primary');
-        btn.classList.add('btn-secondary');
-        showToast('番茄钟已暂停');
-      } else {
-        btn.innerHTML = '⏸️ 暂停专注';
-        btn.classList.remove('btn-secondary');
-        btn.classList.add('btn-primary');
-        showToast('进入深度专注模式');
-      }
-      isTimerRunning = !isTimerRunning;
-    }
+// 番茄钟
+let pomoRun=true;
+function togglePomo(){const b=document.getElementById('pomoBtn');if(pomoRun){b.innerHTML='▶️ 继续';b.classList.remove('btn-p');b.classList.add('btn-s');toast('已暂停')}else{b.innerHTML='⏸️ 暂停';b.classList.remove('btn-s');b.classList.add('btn-p');toast('继续专注')}pomoRun=!pomoRun}
+function selNoise(el){el.parentElement.querySelectorAll('.noise-chip').forEach(c=>c.classList.remove('act'));el.classList.add('act');toast('白噪音: '+el.textContent.trim())}
 
-    // 5. 提示信息 Toast
-    function showToast(msg) {
-      const toast = document.getElementById('toastMsg');
-      toast.innerText = msg;
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 2500);
-    }
+// 习惯打卡
+function toggleHabit(el){const b=el.querySelector('.habit-ck-btn');if(b.classList.contains('pending')){b.classList.remove('pending');b.classList.add('done');b.textContent='✓ 已打卡';toast('打卡成功！')}else{b.classList.remove('done');b.classList.add('pending');b.textContent='待打卡'}}
 
-    // 6. 明暗主题切换
-    const themeBtn = document.getElementById('themeToggleBtn');
-    themeBtn.onclick = () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      if (current === 'light') {
-        document.documentElement.removeAttribute('data-theme');
-        showToast('已切换至极客深色模式');
-      } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-        showToast('已切换至清新浅色模式');
-      }
-    };
+// 热力图
+function genHeatmap(id,cols){const g=document.getElementById(id);for(let i=0;i<cols*7;i++){const c=document.createElement('div');c.className='hm-c';const r=Math.random();if(r>.55)c.classList.add('l4');else if(r>.38)c.classList.add('l3');else if(r>.22)c.classList.add('l2');else if(r>.08)c.classList.add('l1');g.appendChild(c)}}
+genHeatmap('hmGrid',26);
 
-    // 7. 局域网配对点击
-    document.getElementById('syncBadge').onclick = () => {
-      showToast('局域网设备在线：Android-Pixel (延迟 2ms，已配对)');
-    };
-  </script>
+// 月历
+function genCal(){const g=document.getElementById('calMonthGrid');const wks=['一','二','三','四','五','六','日'];
+wks.forEach(w=>{const d=document.createElement('div');d.className='cal-wk';d.textContent=w;g.appendChild(d)});
+const events=[3,7,10,14,18,22,25,28];const rests=[1,2,3,4,5,31];
+for(let i=0;i<3;i++){const d=document.createElement('div');d.className='cal-day';g.appendChild(d)}
+for(let i=1;i<=31;i++){const d=document.createElement('div');d.className='cal-day';d.textContent=i;
+if(i===10)d.classList.add('today');
+if(events.includes(i))d.classList.add('has-event');
+if(rests.includes(i)||(i%7===4||i%7===5))d.classList.add('rest');
+d.onclick=()=>toast('选中: 5月'+i+'日');g.appendChild(d)}}
+genCal();
+
+// 主题
+document.getElementById('thBtn').onclick=()=>{const c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');toast('已切换至深色模式')}else{document.documentElement.setAttribute('data-theme','light');toast('已切换至浅色模式')}};
+
+// Toast
+function toast(m){const t=document.getElementById('toastEl');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+</script>
 </body>
 </html>
