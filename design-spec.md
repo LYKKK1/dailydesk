@@ -300,6 +300,49 @@ dev_dependencies:
    * 提供独立白噪音音量滑块与多音轨混响；
    * 支持一键切换全屏极简大数字禅模式，消除所有桌面干扰。
 
+### 5.11 AI 智囊 Copilot 想法智能拆解器与模型连接规范 (GPT Integration & Idea Decomposition)
+
+为解决高压场景下“脑中念头琐碎繁杂、难以及时转化为标准 GTD 任务与有序流程”的认知负荷问题，DailyDesk 内建工业级 **AI 想法拆解助手 (Copilot)**。
+
+#### 1. 核心架构与功能定位
+* **自然语言一键拆解**：用户只需以口语化录入一句话或一段思路（例如：“明天要发版 v1.0，需要做打包自测、写更新日志、下午和运营对齐，还要提醒自己下午4点喝茶放松”），AI 自动按照 GTD 优先级与全天 SOP 时序进行多维度结构化拆解。
+* **结构化行动卡片输出**：拆解结果直接呈现实体复选清单：
+  * 🎯 **待办任务 (Todos)**：自动推导优先级（P0/P1/P2/P3）、预估番茄钟（1~3）、建议截止时间；
+  * 📋 **每日 SOP 节点**：根据作息规律推导建议时间槽（HH:mm）与执行步骤；
+  * 💡 **灵感便签 (Memos)**：提取关键备忘与架构注意点，自动打上对应分类标签；
+* **一键批量写入工作台闭环 (One-Click Batch Apply)**：用户可按需勾选或微调拆解项，点击 **`⚡ 一键批量写入今日工作台`**，系统以单事务批量写入 Drift 本地数据库，首屏工作台各模块毫秒级动态重绘！
+
+#### 2. 自定义 GPT 配置与动态拉取模型 (`GET /v1/models`)
+* **完全开放的协议兼容**：
+  * 支持自定义 **API Base URL**（默认为 `https://api.openai.com/v1`，同时兼容 DeepSeek `https://api.deepseek.com/v1`、Groq、Moonshot 以及本地 Ollama、OneAPI 反向代理网关）；
+  * **API Key** 本地端内加密隔离存储，零云端上报风险。
+* **动态发现与拉取模型池**：
+  * 提供 **`🔍 获取模型列表`** 交互按钮；
+  * 请求端点：`GET {Base URL}/models`（附带 `Authorization: Bearer <API_KEY>`）；
+  * 动态解析并清洗 `data[].id` 数组，自动填充模型下拉选择框（如 `gpt-4o`、`gpt-4o-mini`、`o1`、`deepseek-chat`、`deepseek-reasoner` 等），并支持输入框自由指定模型名兜底。
+* **开发环境与本地网络代理规范**：
+  * 全局支持配置本地代理通道（**默认预置 `http://127.0.0.1:7890`**）；
+  * 在 Flutter 桌面端使用 `HttpClient.findProxy` 绑定该代理，兼顾 GitHub 代码资产拉取与海外大模型 API 访问的稳定性。
+
+#### 3. AI 结构化拆解 JSON Schema 定义
+大模型请求采用带有系统约束的 Structured Outputs（或 Function Calling）：
+```json
+{
+  "analysis": "发版前夕的核心攻坚与健康作息建议",
+  "todos": [
+    { "title": "编译 Windows & Android 双端安装包并冒烟测试", "priority": 0, "estimated_pomodoros": 3, "due_time": "14:00" },
+    { "title": "编写 GitHub Release v1.0 发版日志", "priority": 1, "estimated_pomodoros": 1, "due_time": "16:00" },
+    { "title": "与运营团队同步版本发布与灰度节奏", "priority": 2, "estimated_pomodoros": 1, "due_time": "17:00" }
+  ],
+  "sops": [
+    { "title": "☕ 午后站立拉伸与饮水 300ml", "time": "16:00" }
+  ],
+  "memos": [
+    { "content": "发版重点检查多网卡环境下的 mDNS 广播绑定与 LWW 冲突解析", "tag": "arch" }
+  ]
+}
+```
+
 ---
 
 ## 6. 离线优先本地数据库 Schema 与迁移规范
@@ -504,7 +547,7 @@ CREATE TABLE IF NOT EXISTS sync_devices (
 |  [Phase 2] Windows 桌面特色窗口与系统级服务 (Tasks 2.1 - 2.4)                            |
 |      |                                                                                  |
 |      v                                                                                  |
-|  [Phase 3] 业务功能模块双端精细化构建 (Tasks 3.1 - 3.8)                                  |
+|  [Phase 3] 业务功能模块双端精细化构建 (Tasks 3.1 - 3.9)                                  |
 |      |                                                                                  |
 |      v                                                                                  |
 |  [Phase 4] 局域网 P2P 增量同步引擎实现 (Tasks 4.1 - 4.5)                                 |
@@ -699,6 +742,15 @@ CREATE TABLE IF NOT EXISTS sync_devices (
 * **核心内容**：
   * 聚合顶部问候语、今日任务完成率环形图、Top 3 任务、迷你计时与今日习惯列表。
 * **验收标准**：打开软件首屏即见全天工作脉络，各入口一键跳转。
+
+#### 任务 3.9：AI 智囊 Copilot 与想法智能拆解引擎
+* **任务编号**：`TASK-3.9`
+* **目标文件**：`lib/features/copilot/services/ai_service.dart`, `lib/features/copilot/presentation/ai_chat_view.dart`, `lib/core/network/http_client_factory.dart`
+* **核心内容**：
+  * 封装支持配置 7890 代理的 `HttpClientFactory`（用于依赖拉取与 API 访问）；
+  * 实现 OpenAI 兼容 REST 服务：`fetchModels()` 动态拉取端点支持的模型列表；`deconstructIdea()` 请求结构化拆解 JSON；
+  * 实现 AI 对话消息流与结构化行动卡片（待办、SOP、随手记），支持多选并一键批量事务写入 Drift 数据库。
+* **验收标准**：点击拉取模型成功载入模型池；输入一段想法后即刻拆解，点击“一键写入工作台”后，全景工作台即时重绘并更新计数。
 
 ---
 
