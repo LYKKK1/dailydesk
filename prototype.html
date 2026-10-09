@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DailyDesk v2 - 模块化拖拽看板工作台</title>
+<title>DailyDesk v2 - 自由边框拉伸可调尺寸工作台</title>
 <style>
 :root{
   --bg0:#0a0d13;--bg1:#111827;--bg2:#1e293b;--bg3:#283548;--bg4:#334155;
@@ -85,16 +85,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 .ckb.ck{background:var(--em);border-color:var(--em)}.ckb.ck::after{content:"✓";color:#fff;font-size:11px;font-weight:700}
 .todo.done .todo-tt{text-decoration:line-through;color:var(--tx3)}
 .todo-tt{font-size:12px}.todo-meta{font-size:10px;color:var(--tx3);margin-top:2px}
-.todo-r{display:flex;align-items:center;gap:6px}
 
 /* ==========================================================
-   可拖拽模块网格系统 (Dashboard Drag & Drop)
+   可自由调整尺寸与拖拽重排的网格系统 (Draggable & Resizable Grid)
 ========================================================== */
 .dash-board-grid{
   display:grid;
   grid-template-columns:repeat(12, 1fr);
   gap:16px;
   position:relative;
+  align-items:start;
 }
 
 /* 模块卡片基础定义 */
@@ -104,38 +104,121 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
   border-radius:var(--r2);
   padding:15px;
   box-shadow:var(--sh);
-  transition:border .15s, box-shadow .15s;
   position:relative;
   display:flex;
   flex-direction:column;
+  min-height:160px;
+  overflow:visible;
+  transition:border-color 0.15s, box-shadow 0.15s;
 }
 .dash-widget:hover{
-  border-color:rgba(255,255,255,.14);
+  border-color:rgba(255,255,255,.18);
 }
 .dash-widget.w-12{grid-column:span 12}
+.dash-widget.w-8{grid-column:span 8}
 .dash-widget.w-7{grid-column:span 7}
 .dash-widget.w-6{grid-column:span 6}
 .dash-widget.w-5{grid-column:span 5}
 .dash-widget.w-4{grid-column:span 4}
 
-/* 正在被拖拽的样式 */
+/* 拖动与拖拽覆盖效果 */
 .dash-widget.dragging{
-  opacity:0.35;
+  opacity:0.3;
   border:2px dashed var(--ac);
   transform:scale(0.98);
 }
 .dash-widget.drag-over{
   border:2px solid var(--ac);
-  box-shadow:0 0 15px var(--acg);
+  box-shadow:0 0 16px var(--acg);
 }
 
-/* 卡片顶栏与控制按钮 */
+/* ==========================================================
+   边框拉伸热区与视觉手柄 (Border Resize Handles)
+========================================================== */
+.resizer{
+  position:absolute;
+  z-index:30;
+  transition:background 0.15s, opacity 0.15s;
+}
+/* 右边框：拉大/缩小宽度 (按 12 栅格自适应) */
+.resizer-r{
+  top:0;
+  right:-4px;
+  width:10px;
+  height:100%;
+  cursor:col-resize;
+}
+.resizer-r:hover, .resizer-r.active{
+  background:linear-gradient(180deg, transparent, var(--ac), transparent);
+  box-shadow:0 0 8px var(--ac);
+  opacity:1;
+}
+
+/* 底边框：拉高/缩小高度 */
+.resizer-b{
+  left:0;
+  bottom:-4px;
+  width:100%;
+  height:10px;
+  cursor:row-resize;
+}
+.resizer-b:hover, .resizer-b.active{
+  background:linear-gradient(90deg, transparent, var(--ac), transparent);
+  box-shadow:0 0 8px var(--ac);
+  opacity:1;
+}
+
+/* 右下角对角拉伸手柄：同时拉大宽高 */
+.resizer-se{
+  right:1px;
+  bottom:1px;
+  width:16px;
+  height:16px;
+  cursor:nwse-resize;
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-end;
+  padding:2px;
+}
+.resizer-se::after{
+  content:"";
+  width:7px;
+  height:7px;
+  border-right:2px solid var(--tx3);
+  border-bottom:2px solid var(--tx3);
+  display:block;
+  transition:var(--tr);
+}
+.resizer-se:hover::after, .resizer-se.active::after{
+  border-color:var(--ac);
+  transform:scale(1.25);
+}
+
+/* 浮动实时拉伸尺寸指示徽章 */
+.resize-indicator-badge{
+  position:fixed;
+  padding:5px 12px;
+  background:linear-gradient(135deg, var(--ac), var(--cy));
+  color:#fff;
+  border-radius:var(--rf);
+  font-size:11.5px;
+  font-weight:600;
+  box-shadow:0 6px 20px rgba(0,0,0,0.5);
+  pointer-events:none;
+  z-index:9999;
+  display:none;
+  transform:translate(14px, 14px);
+  white-space:nowrap;
+}
+.resize-indicator-badge.show{display:block}
+
+/* 卡片顶栏控件 */
 .widget-head{
   display:flex;
   align-items:center;
   justify-content:space-between;
   margin-bottom:12px;
-  border-bottom:1px solid rgba(255,255,255,.04);
+  border-bottom:1px solid rgba(255,255,255,.05);
   padding-bottom:8px;
 }
 .widget-title{
@@ -159,13 +242,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
   font-size:12px;
   letter-spacing:1px;
 }
-.drag-handle:hover{
+.drag-handle:hover{background:var(--bg3);color:var(--tx)}
+.drag-handle:active{cursor:grabbing}
+
+.col-badge{
+  font-size:10px;
+  padding:2px 6px;
+  border-radius:4px;
+  background:var(--bg2);
+  color:var(--tx3);
+  cursor:pointer;
+  border:1px solid var(--bdr);
+  transition:var(--tr);
+}
+.col-badge:hover{
   background:var(--bg3);
-  color:var(--tx);
+  color:var(--ac);
+  border-color:var(--bdr-a);
 }
-.drag-handle:active{
-  cursor:grabbing;
-}
+
 .widget-btn{
   background:transparent;
   border:none;
@@ -176,28 +271,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
   font-size:12px;
   transition:var(--tr);
 }
-.widget-btn:hover{
-  background:var(--bg3);
-  color:var(--tx);
-}
-.widget-btn.del:hover{
-  background:rgba(239,68,68,.15);
-  color:var(--ro);
+.widget-btn:hover{background:var(--bg3);color:var(--tx)}
+.widget-btn.del:hover{background:rgba(239,68,68,.15);color:var(--ro)}
+
+/* 内部内容溢出保护 */
+.widget-body{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  overflow:auto;
 }
 
-/* 四象限小组件内部样式 */
+/* 四象限组件 */
 .quad-mini-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   grid-template-rows:1fr 1fr;
   gap:8px;
   flex:1;
-  min-height:220px;
+  min-height:190px;
 }
 .quad-box{
   background:var(--bg2);
   border-radius:var(--r);
-  padding:9px;
+  padding:8px;
   display:flex;
   flex-direction:column;
   border-left:3px solid transparent;
@@ -206,102 +303,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 .qb-p1{border-left-color:var(--p1)}
 .qb-p2{border-left-color:var(--p2)}
 .qb-p3{border-left-color:var(--p3)}
-.quad-box-title{
-  font-size:11px;
-  font-weight:600;
-  margin-bottom:6px;
-  display:flex;
-  justify-content:space-between;
-}
-.quad-box-items{
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  overflow-y:auto;
-  flex:1;
-}
-.quad-chip{
-  background:var(--bg1);
-  padding:5px 7px;
-  border-radius:5px;
-  font-size:11px;
-  cursor:pointer;
-}
+.quad-box-title{font-size:11px;font-weight:600;margin-bottom:5px;display:flex;justify-content:space-between}
+.quad-box-items{display:flex;flex-direction:column;gap:4px;overflow-y:auto;flex:1}
+.quad-chip{background:var(--bg1);padding:4px 6px;border-radius:4px;font-size:11px;cursor:pointer}
 .quad-chip:hover{background:var(--bg3)}
 
 /* 番茄小环 */
-.mini-pomo-wrap{
-  display:flex;
-  align-items:center;
-  gap:20px;
-  justify-content:center;
-  padding:10px 0;
-}
-.mini-pomo-ring{
-  width:90px;
-  height:90px;
-  position:relative;
-}
+.mini-pomo-wrap{display:flex;align-items:center;gap:18px;justify-content:center;padding:10px 0}
+.mini-pomo-ring{width:90px;height:90px;position:relative}
 .mini-pomo-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .mini-pomo-ring .bg{stroke:var(--bg3);stroke-width:8;fill:none}
 .mini-pomo-ring .fg{stroke:var(--ac);stroke-width:8;fill:none;stroke-linecap:round;stroke-dasharray:251;stroke-dashoffset:60}
 .mini-pomo-digits{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:16px;font-weight:700}
 
 /* 抽屉：添加模块库面板 */
-.drawer-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.5);
-  z-index:280;
-  display:none;
-}
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:280;display:none}
 .drawer-overlay.open{display:block}
-.module-drawer{
-  position:fixed;
-  top:0;
-  right:-380px;
-  width:360px;
-  height:100vh;
-  background:var(--bg1);
-  border-left:1px solid var(--bdr);
-  box-shadow:-5px 0 25px rgba(0,0,0,.6);
-  z-index:290;
-  padding:20px;
-  display:flex;
-  flex-direction:column;
-  transition:right .25s cubic-bezier(.16,1,.3,1);
-}
+.module-drawer{position:fixed;top:0;right:-380px;width:360px;height:100vh;background:var(--bg1);border-left:1px solid var(--bdr);box-shadow:-5px 0 25px rgba(0,0,0,.6);z-index:290;padding:20px;display:flex;flex-direction:column;transition:right .25s cubic-bezier(.16,1,.3,1)}
 .module-drawer.open{right:0}
-.drawer-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:16px;
-  padding-bottom:12px;
-  border-bottom:1px solid var(--bdr);
-}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--bdr)}
 .drawer-title{font-size:15px;font-weight:700}
-.drawer-list{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  overflow-y:auto;
-  flex:1;
-}
-.mod-card{
-  background:var(--bg2);
-  border:1px solid var(--bdr);
-  border-radius:var(--r);
-  padding:12px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  transition:var(--tr);
-}
-.mod-card:hover{
-  border-color:var(--bdr-a);
-  background:var(--bg3);
-}
+.drawer-list{display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1}
+.mod-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:12px;display:flex;align-items:center;justify-content:space-between;transition:var(--tr)}
+.mod-card:hover{border-color:var(--bdr-a);background:var(--bg3)}
 .mod-info h4{font-size:12.5px;font-weight:600;margin-bottom:2px}
 .mod-info p{font-size:11px;color:var(--tx3)}
 
@@ -309,7 +333,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 .grid{display:grid;gap:16px}
 .g2{grid-template-columns:repeat(2,1fr)}
 .g3{grid-template-columns:repeat(3,1fr)}
-.g7-5{grid-template-columns:7fr 5fr}
 .card{background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--r2);padding:16px;box-shadow:var(--sh);transition:var(--tr);margin-bottom:16px}
 .card-t{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .card-t h3{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:7px}
@@ -325,7 +348,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 .quad-item{padding:7px 10px;background:var(--bg2);border-radius:var(--r);font-size:11.5px;cursor:grab;transition:var(--tr)}
 .quad-item:hover{background:var(--bg3)}
 
-/* 闪念胶囊 & 命令面板 & Toast */
+/* 弹窗与组件 */
 .capsule-overlay,.cmd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:399;display:none}
 .capsule-overlay.open,.cmd-overlay.open{display:block}
 .capsule{position:fixed;top:18%;left:50%;transform:translateX(-50%) scale(.96);width:600px;background:var(--bg1);border:1px solid var(--bdr-a);border-radius:var(--r2);box-shadow:0 20px 50px rgba(0,0,0,.7),var(--shg);padding:14px 18px;z-index:400;opacity:0;pointer-events:none;transition:var(--tr)}
@@ -393,13 +416,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
   <main class="main">
 
     <!-- ==========================================
-         PAGE 1: 今日全景 (可拖拽自由拼接工作台)
+         PAGE 1: 今日全景 (可边框拖拽自定义大小 + 排序工作台)
     ========================================== -->
     <div class="page show" id="pg-dash">
       <div class="vh">
         <div>
-          <h1>今日工作台 · 模块化看板 🎨</h1>
-          <p class="vh-sub">按住卡片右上角 <strong>⋮⋮ 手柄</strong> 即可自由拖动排序，点击右上角【+ 添加模块】自由组合</p>
+          <h1>今日工作台 · 自由缩放排版 📐</h1>
+          <p class="vh-sub">👉 <strong>鼠标移到任意卡片的【右边框】或【底边框】或【右下角】即可直接拉大/缩小</strong>；按住右上角 <strong>⋮⋮ 手柄</strong> 拖动调换顺序</p>
         </div>
         <div style="display:flex;gap:10px">
           <button class="btn btn-p" onclick="openDrawer()">+ 添加模块</button>
@@ -407,156 +430,168 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
         </div>
       </div>
 
-      <!-- 可拖拽网格容器 -->
+      <!-- 可拖拽、可拉伸网格容器 -->
       <div class="dash-board-grid" id="dashGrid">
 
-        <!-- 模块 1: 核心指标条 (通栏 12 格) -->
+        <!-- 模块 1: 核心指标条 (初始 12 格) -->
         <div class="dash-widget w-12" id="mod-stats" draggable="false">
           <div class="widget-head">
             <div class="widget-title">📈 今日生产力总览</div>
             <div class="widget-actions">
-              <span class="drag-handle" title="按住拖拽排序">⋮⋮</span>
-              <button class="widget-btn" onclick="toggleWidth(this)" title="切换通栏/半宽">↔</button>
+              <span class="col-badge" onclick="cycleSpan(this)" title="点击快速切换列宽">12列</span>
+              <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
               <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-            <div style="background:var(--bg2);padding:12px;border-radius:var(--r);text-align:center"><div style="font-size:20px;font-weight:700;color:var(--tx)">5</div><div style="font-size:10.5px;color:var(--tx3);margin-top:2px">今日待办</div></div>
-            <div style="background:var(--bg2);padding:12px;border-radius:var(--r);text-align:center"><div style="font-size:20px;font-weight:700;color:var(--em)">3</div><div style="font-size:10.5px;color:var(--tx3);margin-top:2px">已完成</div></div>
-            <div style="background:var(--bg2);padding:12px;border-radius:var(--r);text-align:center"><div style="font-size:20px;font-weight:700;color:var(--cy)">2.5h</div><div style="font-size:10.5px;color:var(--tx3);margin-top:2px">深度专注</div></div>
-            <div style="background:var(--bg2);padding:12px;border-radius:var(--r);text-align:center"><div style="font-size:20px;font-weight:700;color:var(--am)">52 天</div><div style="font-size:10.5px;color:var(--tx3);margin-top:2px">连续习惯</div></div>
+          <div class="widget-body">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+              <div style="background:var(--bg2);padding:12px;border-radius:var(--r);text-align:center"><div style="font-size:20px;font-weight:700;color:var(--tx)">5</div><div style="font-size:10.5px;color:var(--tx3);margin-top:2px">今日待办</div></div>
+              <div style="background:var(--bg2);padding:12px;border-radius:var(--r);text-align:center"><div style="font-size:20px;font-weight:700;color:var(--em)">3</div><div style="font-size:10.5px;color:var(--tx3);margin-top:2px">已完成</div></div>
+              <div style="background:var(--bg2);padding:12px;border-radius:var(--r);text-align:center"><div style="font-size:20px;font-weight:700;color:var(--cy)">2.5h</div><div style="font-size:10.5px;color:var(--tx3);margin-top:2px">深度专注</div></div>
+              <div style="background:var(--bg2);padding:12px;border-radius:var(--r);text-align:center"><div style="font-size:20px;font-weight:700;color:var(--am)">52 天</div><div style="font-size:10.5px;color:var(--tx3);margin-top:2px">连续习惯</div></div>
+            </div>
           </div>
         </div>
 
-        <!-- 模块 2: 今日核心任务 (7 格) -->
+        <!-- 模块 2: 今日核心任务 (初始 7 格) -->
         <div class="dash-widget w-7" id="mod-top-todos" draggable="false">
           <div class="widget-head">
             <div class="widget-title">🎯 今日 Top 核心聚焦</div>
             <div class="widget-actions">
-              <span class="drag-handle" title="按住拖拽排序">⋮⋮</span>
-              <button class="widget-btn" onclick="toggleWidth(this)" title="切换通栏/半宽">↔</button>
+              <span class="col-badge" onclick="cycleSpan(this)" title="点击快速切换列宽">7列</span>
+              <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
               <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
             </div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:6px">
-            <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">完成 P2P 局域网增量同步核心模块</div><div class="todo-meta">预计 2 番茄 · 截止 15:00</div></div></div><span class="tag t-p0">P0</span></div>
-            <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">对齐 Android 端 120Hz 高刷手势体验</div><div class="todo-meta">时间块 16:30-17:15</div></div></div><span class="tag t-p1">P1</span></div>
-            <div class="todo done" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb ck"></div><div><div class="todo-tt">早会与任务池整理</div><div class="todo-meta">已于 09:30 完成</div></div></div><span class="tag t-p2">P2</span></div>
-            <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">补充 SPEC 日历 iCal 导入导出段落</div><div class="todo-meta">截止 今天 18:00</div></div></div><span class="tag t-p1">P1</span></div>
+          <div class="widget-body">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">完成 P2P 局域网增量同步核心模块</div><div class="todo-meta">预计 2 番茄 · 截止 15:00</div></div></div><span class="tag t-p0">P0</span></div>
+              <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">对齐 Android 端 120Hz 高刷手势体验</div><div class="todo-meta">时间块 16:30-17:15</div></div></div><span class="tag t-p1">P1</span></div>
+              <div class="todo done" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb ck"></div><div><div class="todo-tt">早会与任务池整理</div><div class="todo-meta">已于 09:30 完成</div></div></div><span class="tag t-p2">P2</span></div>
+              <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">补充 SPEC 日历 iCal 导入导出段落</div><div class="todo-meta">截止 今天 18:00</div></div></div><span class="tag t-p1">P1</span></div>
+            </div>
           </div>
         </div>
 
-        <!-- 模块 3: 沉浸番茄钟 (5 格) -->
+        <!-- 模块 3: 沉浸番茄钟 (初始 5 格) -->
         <div class="dash-widget w-5" id="mod-pomo-ring" draggable="false">
           <div class="widget-head">
             <div class="widget-title">⏱️ 沉浸番茄钟</div>
             <div class="widget-actions">
-              <span class="drag-handle" title="按住拖拽排序">⋮⋮</span>
-              <button class="widget-btn" onclick="toggleWidth(this)" title="切换通栏/半宽">↔</button>
+              <span class="col-badge" onclick="cycleSpan(this)" title="点击快速切换列宽">5列</span>
+              <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
               <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
             </div>
           </div>
-          <div class="mini-pomo-wrap">
-            <div class="mini-pomo-ring">
-              <svg viewBox="0 0 90 90"><circle class="bg" cx="45" cy="45" r="38"/><circle class="fg" cx="45" cy="45" r="38"/></svg>
-              <div class="mini-pomo-digits">21:40<span style="font-size:9.5px;color:var(--cy);font-weight:400">进行中</span></div>
-            </div>
-            <div style="font-size:11.5px;color:var(--tx2)">
-              <div style="margin-bottom:6px">🌧️ 雨声白噪音</div>
-              <div style="margin-bottom:10px">第 <strong>2/4</strong> 个番茄</div>
-              <button class="btn btn-p btn-sm" onclick="toast('已切换专注状态')">⏸️ 暂停/继续</button>
+          <div class="widget-body">
+            <div class="mini-pomo-wrap">
+              <div class="mini-pomo-ring">
+                <svg viewBox="0 0 90 90"><circle class="bg" cx="45" cy="45" r="38"/><circle class="fg" cx="45" cy="45" r="38"/></svg>
+                <div class="mini-pomo-digits">21:40<span style="font-size:9.5px;color:var(--cy);font-weight:400">进行中</span></div>
+              </div>
+              <div style="font-size:11.5px;color:var(--tx2)">
+                <div style="margin-bottom:6px">🌧️ 雨声白噪音</div>
+                <div style="margin-bottom:10px">第 <strong>2/4</strong> 个番茄</div>
+                <button class="btn btn-p btn-sm" onclick="toast('已切换专注状态')">⏸️ 暂停/继续</button>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- 模块 4: 四象限看板 (你重点要求的核心模块，默认 7 格或 12 格) -->
+        <!-- 模块 4: 四象限看板 (初始 7 格) -->
         <div class="dash-widget w-7" id="mod-matrix" draggable="false">
           <div class="widget-head">
             <div class="widget-title">🧩 四象限看板 (Eisenhower Matrix)</div>
             <div class="widget-actions">
-              <span class="drag-handle" title="按住拖拽排序">⋮⋮</span>
-              <button class="widget-btn" onclick="toggleWidth(this)" title="切换通栏/半宽">↔</button>
+              <span class="col-badge" onclick="cycleSpan(this)" title="点击快速切换列宽">7列</span>
+              <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
               <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
             </div>
           </div>
-          <div class="quad-mini-grid">
-            <div class="quad-box qb-p0">
-              <div class="quad-box-title"><span style="color:var(--p0)">🔴 紧急且重要 (P0)</span><span class="tag t-p0">2</span></div>
-              <div class="quad-box-items">
-                <div class="quad-chip" onclick="toast('任务: P2P 增量同步核心')">P2P 增量同步核心</div>
-                <div class="quad-chip" onclick="toast('任务: 修复并发死锁')">修复并发死锁</div>
+          <div class="widget-body">
+            <div class="quad-mini-grid">
+              <div class="quad-box qb-p0">
+                <div class="quad-box-title"><span style="color:var(--p0)">🔴 紧急且重要 (P0)</span><span class="tag t-p0">2</span></div>
+                <div class="quad-box-items">
+                  <div class="quad-chip" onclick="toast('任务: P2P 增量同步核心')">P2P 增量同步核心</div>
+                  <div class="quad-chip" onclick="toast('任务: 修复并发死锁')">修复并发死锁</div>
+                </div>
               </div>
-            </div>
-            <div class="quad-box qb-p1">
-              <div class="quad-box-title"><span style="color:var(--p1)">🟠 重要不紧急 (P1)</span><span class="tag t-p1">3</span></div>
-              <div class="quad-box-items">
-                <div class="quad-chip" onclick="toast('任务: 补充 iCal 段落')">补充 iCal 段落</div>
-                <div class="quad-chip" onclick="toast('任务: 对齐 Android 高刷')">对齐 Android 高刷</div>
+              <div class="quad-box qb-p1">
+                <div class="quad-box-title"><span style="color:var(--p1)">🟠 重要不紧急 (P1)</span><span class="tag t-p1">2</span></div>
+                <div class="quad-box-items">
+                  <div class="quad-chip" onclick="toast('任务: 补充 iCal 段落')">补充 iCal 段落</div>
+                  <div class="quad-chip" onclick="toast('任务: 对齐 Android 高刷')">对齐 Android 高刷</div>
+                </div>
               </div>
-            </div>
-            <div class="quad-box qb-p2">
-              <div class="quad-box-title"><span style="color:var(--p2)">🔵 紧急不重要 (P2)</span><span class="tag t-p2">1</span></div>
-              <div class="quad-box-items">
-                <div class="quad-chip" onclick="toast('任务: 回复合作商邮件')">回复合作商邮件</div>
+              <div class="quad-box qb-p2">
+                <div class="quad-box-title"><span style="color:var(--p2)">🔵 紧急不重要 (P2)</span><span class="tag t-p2">1</span></div>
+                <div class="quad-box-items">
+                  <div class="quad-chip" onclick="toast('任务: 回复合作商邮件')">回复合作商邮件</div>
+                </div>
               </div>
-            </div>
-            <div class="quad-box qb-p3">
-              <div class="quad-box-title"><span style="color:var(--p3)">⚪ 不紧急不重要 (P3)</span><span class="tag t-p3">2</span></div>
-              <div class="quad-box-items">
-                <div class="quad-chip" onclick="toast('任务: 买一箱气泡水')">买一箱气泡水</div>
+              <div class="quad-box qb-p3">
+                <div class="quad-box-title"><span style="color:var(--p3)">⚪ 不紧急不重要 (P3)</span><span class="tag t-p3">1</span></div>
+                <div class="quad-box-items">
+                  <div class="quad-chip" onclick="toast('任务: 买一箱气泡水')">买一箱气泡水</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 模块 5: 习惯打卡与今日连续 (5 格) -->
+        <!-- 模块 5: 习惯打卡与今日连续 (初始 5 格) -->
         <div class="dash-widget w-5" id="mod-habits" draggable="false">
           <div class="widget-head">
             <div class="widget-title">🌱 今日习惯打卡</div>
             <div class="widget-actions">
-              <span class="drag-handle" title="按住拖拽排序">⋮⋮</span>
-              <button class="widget-btn" onclick="toggleWidth(this)" title="切换通栏/半宽">↔</button>
+              <span class="col-badge" onclick="cycleSpan(this)" title="点击快速切换列宽">5列</span>
+              <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
               <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
             </div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:6px">
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg2);border-radius:var(--r);font-size:11.5px">
-              <span>💧 饮水 2000ml</span><span style="color:var(--em);font-weight:600">✓ 已打卡</span>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg2);border-radius:var(--r);font-size:11.5px">
-              <span>📖 技术阅读 30min</span><span style="color:var(--em);font-weight:600">✓ 已打卡</span>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg2);border-radius:var(--r);font-size:11.5px;cursor:pointer" onclick="this.lastElementChild.textContent='✓ 已打卡';this.lastElementChild.style.color='var(--em)';toast('打卡成功')">
-              <span>🏃 晚间慢跑 3km</span><span style="color:var(--tx3)">待打卡 ＋</span>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg2);border-radius:var(--r);font-size:11.5px;cursor:pointer" onclick="this.lastElementChild.textContent='✓ 已打卡';this.lastElementChild.style.color='var(--em)';toast('打卡成功')">
-              <span>🌙 23:30 前熄灯</span><span style="color:var(--tx3)">待打卡 ＋</span>
+          <div class="widget-body">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg2);border-radius:var(--r);font-size:11.5px">
+                <span>💧 饮水 2000ml</span><span style="color:var(--em);font-weight:600">✓ 已打卡</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg2);border-radius:var(--r);font-size:11.5px">
+                <span>📖 技术阅读 30min</span><span style="color:var(--em);font-weight:600">✓ 已打卡</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg2);border-radius:var(--r);font-size:11.5px;cursor:pointer" onclick="this.lastElementChild.textContent='✓ 已打卡';this.lastElementChild.style.color='var(--em)';toast('打卡成功')">
+                <span>🏃 晚间慢跑 3km</span><span style="color:var(--tx3)">待打卡 ＋</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg2);border-radius:var(--r);font-size:11.5px;cursor:pointer" onclick="this.lastElementChild.textContent='✓ 已打卡';this.lastElementChild.style.color='var(--em)';toast('打卡成功')">
+                <span>🌙 23:30 前熄灯</span><span style="color:var(--tx3)">待打卡 ＋</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- 模块 6: 灵感随手记快照 (12 格) -->
+        <!-- 模块 6: 灵感随手记快照 (初始 12 格) -->
         <div class="dash-widget w-12" id="mod-memos" draggable="false">
           <div class="widget-head">
             <div class="widget-title">💡 灵感碎片随手记</div>
             <div class="widget-actions">
-              <span class="drag-handle" title="按住拖拽排序">⋮⋮</span>
-              <button class="widget-btn" onclick="toggleWidth(this)" title="切换通栏/半宽">↔</button>
+              <span class="col-badge" onclick="cycleSpan(this)" title="点击快速切换列宽">12列</span>
+              <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
               <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-            <div style="background:var(--bg2);padding:10px;border-radius:var(--r);border-left:3px solid var(--cy);font-size:11.5px">
-              离线增量合并务必处理好微秒时间戳，手机和 PC 如果时钟不一致，需要用逻辑时钟防跳变。
-              <div style="margin-top:6px;font-size:10px;color:var(--tx3)">#架构 · 10分钟前</div>
-            </div>
-            <div style="background:var(--bg2);padding:10px;border-radius:var(--r);border-left:3px solid var(--am);font-size:11.5px">
-              推荐用 fl_chart 做番茄钟折线图，性能极好，每秒 60 帧完全不卡。
-              <div style="margin-top:6px;font-size:10px;color:var(--tx3)">#UI库 · 今天 09:12</div>
-            </div>
-            <div style="background:var(--bg2);padding:10px;border-radius:var(--r);border-left:3px solid var(--ro);font-size:11.5px">
-              晚间复盘增加一个“今日最感恩的一件事”，有助于提升心理幸福感。
-              <div style="margin-top:6px;font-size:10px;color:var(--tx3)">#理念 · 昨天</div>
+          <div class="widget-body">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+              <div style="background:var(--bg2);padding:10px;border-radius:var(--r);border-left:3px solid var(--cy);font-size:11.5px">
+                离线增量合并务必处理好微秒时间戳，手机和 PC 如果时钟不一致，需要用逻辑时钟防跳变。
+                <div style="margin-top:6px;font-size:10px;color:var(--tx3)">#架构 · 10分钟前</div>
+              </div>
+              <div style="background:var(--bg2);padding:10px;border-radius:var(--r);border-left:3px solid var(--am);font-size:11.5px">
+                推荐用 fl_chart 做番茄钟折线图，性能极好，每秒 60 帧完全不卡。
+                <div style="margin-top:6px;font-size:10px;color:var(--tx3)">#UI库 · 今天 09:12</div>
+              </div>
+              <div style="background:var(--bg2);padding:10px;border-radius:var(--r);border-left:3px solid var(--ro);font-size:11.5px">
+                晚间复盘增加一个“今日最感恩的一件事”，有助于提升心理幸福感。
+                <div style="margin-top:6px;font-size:10px;color:var(--tx3)">#理念 · 昨天</div>
+              </div>
             </div>
           </div>
         </div>
@@ -664,8 +699,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 </div>
 
 <!-- ==========================================
-     抽屉：添加模块面板 (Widget Catalog)
+     浮动实时拉伸尺寸指示徽章
 ========================================== -->
+<div class="resize-indicator-badge" id="resizeBadge">📐 宽: 7 列 · 高: 240px</div>
+
+<!-- 抽屉：添加模块面板 -->
 <div class="drawer-overlay" id="drawerOv" onclick="closeDrawer()"></div>
 <div class="module-drawer" id="modDrawer">
   <div class="drawer-head">
@@ -755,9 +793,167 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 <div class="toast" id="toastEl"></div>
 
 <script>
-// ==========================================
-// 1. 拖拽排序核心逻辑 (Drag & Drop Reorder)
-// ==========================================
+// ==========================================================
+// 1. 边框拉伸自定义尺寸核心逻辑 (Border Drag Resizing)
+// ==========================================================
+let activeResizer = null;
+let resizingWidget = null;
+let resizeStartX = 0;
+let resizeStartY = 0;
+let startWidth = 0;
+let startHeight = 0;
+let startSpan = 7;
+
+function attachResizers(widget) {
+  if (widget.querySelector('.resizer-r')) return; // 已装载手柄
+
+  const resizerR = document.createElement('div');
+  resizerR.className = 'resizer resizer-r';
+  resizerR.title = '拖拽右边框调整卡片列宽';
+
+  const resizerB = document.createElement('div');
+  resizerB.className = 'resizer resizer-b';
+  resizerB.title = '拖拽底边框调整卡片高度';
+
+  const resizerSE = document.createElement('div');
+  resizerSE.className = 'resizer resizer-se';
+  resizerSE.title = '拖拽右下角同时调整宽高';
+
+  widget.appendChild(resizerR);
+  widget.appendChild(resizerB);
+  widget.appendChild(resizerSE);
+
+  [
+    { el: resizerR, type: 'col' },
+    { el: resizerB, type: 'row' },
+    { el: resizerSE, type: 'both' }
+  ].forEach(({ el, type }) => {
+    el.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      activeResizer = type;
+      resizingWidget = widget;
+      resizeStartX = e.clientX;
+      resizeStartY = e.clientY;
+
+      const rect = widget.getBoundingClientRect();
+      startWidth = rect.width;
+      startHeight = rect.height;
+
+      const grid = document.getElementById('dashGrid');
+      const gridRect = grid.getBoundingClientRect();
+      const colWidth = (gridRect.width - (11 * 16)) / 12;
+
+      // 提取现有 span
+      const currentStyleSpan = widget.style.gridColumn.replace('span ', '');
+      if (currentStyleSpan) {
+        startSpan = parseInt(currentStyleSpan);
+      } else if (widget.classList.contains('w-12')) startSpan = 12;
+      else if (widget.classList.contains('w-8')) startSpan = 8;
+      else if (widget.classList.contains('w-7')) startSpan = 7;
+      else if (widget.classList.contains('w-6')) startSpan = 6;
+      else if (widget.classList.contains('w-5')) startSpan = 5;
+      else if (widget.classList.contains('w-4')) startSpan = 4;
+      else startSpan = Math.max(3, Math.min(12, Math.round((startWidth + 16) / (colWidth + 16))));
+
+      el.classList.add('active');
+      document.body.style.userSelect = 'none';
+      if (type === 'col') document.body.style.cursor = 'col-resize';
+      else if (type === 'row') document.body.style.cursor = 'row-resize';
+      else document.body.style.cursor = 'nwse-resize';
+
+      const badge = document.getElementById('resizeBadge');
+      badge.classList.add('show');
+      updateResizeBadge(e.clientX, e.clientY, startSpan, startHeight);
+
+      window.addEventListener('mousemove', handleResizeMove);
+      window.addEventListener('mouseup', handleResizeEnd);
+    });
+  });
+}
+
+function handleResizeMove(e) {
+  if (!resizingWidget || !activeResizer) return;
+
+  const grid = document.getElementById('dashGrid');
+  const gridRect = grid.getBoundingClientRect();
+  const colWidth = (gridRect.width - (11 * 16)) / 12;
+
+  let currentSpan = startSpan;
+  let currentHeight = Math.round(startHeight);
+
+  if (activeResizer === 'col' || activeResizer === 'both') {
+    const deltaX = e.clientX - resizeStartX;
+    const targetWidth = Math.max(160, startWidth + deltaX);
+    currentSpan = Math.max(3, Math.min(12, Math.round((targetWidth + 16) / (colWidth + 16))));
+    resizingWidget.style.gridColumn = `span ${currentSpan}`;
+
+    // 同步顶栏列宽徽章
+    const badgeEl = resizingWidget.querySelector('.col-badge');
+    if (badgeEl) badgeEl.textContent = `${currentSpan}列`;
+  }
+
+  if (activeResizer === 'row' || activeResizer === 'both') {
+    const deltaY = e.clientY - resizeStartY;
+    currentHeight = Math.max(140, Math.min(850, Math.round(startHeight + deltaY)));
+    resizingWidget.style.minHeight = `${currentHeight}px`;
+  }
+
+  updateResizeBadge(e.clientX, e.clientY, currentSpan, currentHeight);
+}
+
+function handleResizeEnd(e) {
+  if (!resizingWidget) return;
+
+  const badge = document.getElementById('resizeBadge');
+  badge.classList.remove('show');
+
+  document.querySelectorAll('.resizer').forEach(r => r.classList.remove('active'));
+  document.body.style.userSelect = '';
+  document.body.style.cursor = '';
+
+  const finalSpan = resizingWidget.style.gridColumn.replace('span ', '') || startSpan;
+  const finalHeight = resizingWidget.style.minHeight || (Math.round(startHeight) + 'px');
+
+  toast(`已自定义卡片尺寸：${finalSpan} 列宽 × ${finalHeight} 高`);
+
+  activeResizer = null;
+  resizingWidget = null;
+  window.removeEventListener('mousemove', handleResizeMove);
+  window.removeEventListener('mouseup', handleResizeEnd);
+}
+
+function updateResizeBadge(x, y, span, height) {
+  const badge = document.getElementById('resizeBadge');
+  badge.style.left = `${x}px`;
+  badge.style.top = `${y}px`;
+  const pct = Math.round((span / 12) * 100);
+  badge.textContent = `📐 宽度: ${span} 列 (${pct}%) · 高度: ${Math.round(height)}px`;
+}
+
+// 点击列宽徽章快速循环切换宽度 (4 -> 6 -> 8 -> 12 -> 4)
+function cycleSpan(badge) {
+  const widget = badge.closest('.dash-widget');
+  let currentSpan = 7;
+  const match = widget.style.gridColumn.match(/span\s+(\d+)/);
+  if (match) currentSpan = parseInt(match[1]);
+  else if (widget.classList.contains('w-12')) currentSpan = 12;
+  else if (widget.classList.contains('w-8')) currentSpan = 8;
+  else if (widget.classList.contains('w-7')) currentSpan = 7;
+  else if (widget.classList.contains('w-6')) currentSpan = 6;
+  else if (widget.classList.contains('w-5')) currentSpan = 5;
+  else if (widget.classList.contains('w-4')) currentSpan = 4;
+
+  const nextSpan = currentSpan <= 4 ? 6 : (currentSpan <= 6 ? 8 : (currentSpan <= 8 ? 12 : 4));
+  widget.style.gridColumn = `span ${nextSpan}`;
+  badge.textContent = `${nextSpan}列`;
+  toast(`宽度已切换为: ${nextSpan} 列 (${Math.round(nextSpan/12*100)}%)`);
+}
+
+// ==========================================================
+// 2. 拖拽排序核心逻辑 (Drag & Drop Reorder)
+// ==========================================================
 let dragSource = null;
 
 function initDragAndDrop() {
@@ -765,10 +961,12 @@ function initDragAndDrop() {
   const widgets = grid.querySelectorAll('.dash-widget');
 
   widgets.forEach(widget => {
+    // 注入边框拉伸手柄
+    attachResizers(widget);
+
     const handle = widget.querySelector('.drag-handle');
     if (!handle) return;
 
-    // 只有按住手柄时才允许拖动卡片
     handle.onmousedown = () => { widget.draggable = true; };
     handle.onmouseup = () => { widget.draggable = false; };
 
@@ -801,31 +999,12 @@ function initDragAndDrop() {
       e.preventDefault();
       widget.classList.remove('drag-over');
       if (dragSource && dragSource !== widget) {
-        // 判断放在目标之前还是之后
         const rect = widget.getBoundingClientRect();
         const next = (e.clientY - rect.top) > (rect.height / 2);
         grid.insertBefore(dragSource, next ? widget.nextSibling : widget);
       }
     };
   });
-}
-
-// 切换宽度 (7 格 / 12 格 / 5 格)
-function toggleWidth(btn) {
-  const widget = btn.closest('.dash-widget');
-  if (widget.classList.contains('w-12')) {
-    widget.classList.remove('w-12');
-    widget.classList.add('w-7');
-    toast('已切换为半宽视图 (7格)');
-  } else if (widget.classList.contains('w-7')) {
-    widget.classList.remove('w-7');
-    widget.classList.add('w-12');
-    toast('已切换为通栏视图 (12格)');
-  } else if (widget.classList.contains('w-5')) {
-    widget.classList.remove('w-5');
-    widget.classList.add('w-12');
-    toast('已切换为通栏视图 (12格)');
-  }
 }
 
 // 删除模块
@@ -839,9 +1018,9 @@ function removeWidget(btn) {
   }, 200);
 }
 
-// ==========================================
-// 2. 添加模块库逻辑 (Add Modules to Dashboard)
-// ==========================================
+// ==========================================================
+// 3. 添加模块库逻辑 (Add Modules to Dashboard)
+// ==========================================================
 function openDrawer() {
   document.getElementById('drawerOv').classList.add('open');
   document.getElementById('modDrawer').classList.add('open');
@@ -863,16 +1042,18 @@ function addWidget(type) {
       <div class="widget-head">
         <div class="widget-title">🧩 四象限看板 (Eisenhower Matrix)</div>
         <div class="widget-actions">
-          <span class="drag-handle" title="按住拖拽排序">⋮⋮</span>
-          <button class="widget-btn" onclick="toggleWidth(this)" title="切换通栏/半宽">↔</button>
+          <span class="col-badge" onclick="cycleSpan(this)" title="点击切换宽度">7列</span>
+          <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
           <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
         </div>
       </div>
-      <div class="quad-mini-grid">
-        <div class="quad-box qb-p0"><div class="quad-box-title"><span style="color:var(--p0)">🔴 紧急且重要 (P0)</span><span class="tag t-p0">2</span></div><div class="quad-box-items"><div class="quad-chip">P2P 增量同步核心</div><div class="quad-chip">修复并发死锁</div></div></div>
-        <div class="quad-box qb-p1"><div class="quad-box-title"><span style="color:var(--p1)">🟠 重要不紧急 (P1)</span><span class="tag t-p1">2</span></div><div class="quad-box-items"><div class="quad-chip">补充 iCal 段落</div><div class="quad-chip">对齐 Android 高刷</div></div></div>
-        <div class="quad-box qb-p2"><div class="quad-box-title"><span style="color:var(--p2)">🔵 紧急不重要 (P2)</span><span class="tag t-p2">1</span></div><div class="quad-box-items"><div class="quad-chip">回复合作商邮件</div></div></div>
-        <div class="quad-box qb-p3"><div class="quad-box-title"><span style="color:var(--p3)">⚪ 不紧急不重要 (P3)</span><span class="tag t-p3">1</span></div><div class="quad-box-items"><div class="quad-chip">买一箱气泡水</div></div></div>
+      <div class="widget-body">
+        <div class="quad-mini-grid">
+          <div class="quad-box qb-p0"><div class="quad-box-title"><span style="color:var(--p0)">🔴 紧急且重要 (P0)</span><span class="tag t-p0">2</span></div><div class="quad-box-items"><div class="quad-chip">P2P 增量同步核心</div><div class="quad-chip">修复并发死锁</div></div></div>
+          <div class="quad-box qb-p1"><div class="quad-box-title"><span style="color:var(--p1)">🟠 重要不紧急 (P1)</span><span class="tag t-p1">2</span></div><div class="quad-box-items"><div class="quad-chip">补充 iCal 段落</div><div class="quad-chip">对齐 Android 高刷</div></div></div>
+          <div class="quad-box qb-p2"><div class="quad-box-title"><span style="color:var(--p2)">🔵 紧急不重要 (P2)</span><span class="tag t-p2">1</span></div><div class="quad-box-items"><div class="quad-chip">回复合作商邮件</div></div></div>
+          <div class="quad-box qb-p3"><div class="quad-box-title"><span style="color:var(--p3)">⚪ 不紧急不重要 (P3)</span><span class="tag t-p3">1</span></div><div class="quad-box-items"><div class="quad-chip">买一箱气泡水</div></div></div>
+        </div>
       </div>
     `;
   } else if (type === 'todos') {
@@ -881,13 +1062,15 @@ function addWidget(type) {
       <div class="widget-head">
         <div class="widget-title">🎯 今日 Top 核心聚焦</div>
         <div class="widget-actions">
-          <span class="drag-handle" title="按住拖拽排序">⋮⋮</span>
-          <button class="widget-btn" onclick="toggleWidth(this)" title="切换通栏/半宽">↔</button>
+          <span class="col-badge" onclick="cycleSpan(this)" title="点击切换宽度">7列</span>
+          <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
           <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">新添加的待办模块任务项</div><div class="todo-meta">截止 17:00</div></div></div><span class="tag t-p1">P1</span></div>
+      <div class="widget-body">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">新添加的待办模块任务项</div><div class="todo-meta">截止 17:00</div></div></div><span class="tag t-p1">P1</span></div>
+        </div>
       </div>
     `;
   } else if (type === 'timeline') {
@@ -896,15 +1079,17 @@ function addWidget(type) {
       <div class="widget-head">
         <div class="widget-title">📅 今日时间块排期流</div>
         <div class="widget-actions">
-          <span class="drag-handle" title="按住拖拽排序">⋮⋮</span>
-          <button class="widget-btn" onclick="toggleWidth(this)" title="切换通栏/半宽">↔</button>
+          <span class="col-badge" onclick="cycleSpan(this)" title="点击切换宽度">12列</span>
+          <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
           <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
         </div>
       </div>
-      <div style="display:flex;gap:12px;overflow-x:auto;padding:6px 0">
-        <div style="background:rgba(99,102,241,.12);border-left:3px solid var(--ac);padding:8px 14px;border-radius:6px;font-size:12px;white-space:nowrap">10:00 - 12:00 P2P 开发 (2番茄)</div>
-        <div style="background:rgba(6,182,212,.12);border-left:3px solid var(--cy);padding:8px 14px;border-radius:6px;font-size:12px;white-space:nowrap">14:00 - 15:00 冲突合并调试</div>
-        <div style="background:rgba(249,115,22,.12);border-left:3px solid var(--or);padding:8px 14px;border-radius:6px;font-size:12px;white-space:nowrap">16:30 - 17:15 Android 高刷对齐</div>
+      <div class="widget-body">
+        <div style="display:flex;gap:12px;overflow-x:auto;padding:6px 0">
+          <div style="background:rgba(99,102,241,.12);border-left:3px solid var(--ac);padding:8px 14px;border-radius:6px;font-size:12px;white-space:nowrap">10:00 - 12:00 P2P 开发 (2番茄)</div>
+          <div style="background:rgba(6,182,212,.12);border-left:3px solid var(--cy);padding:8px 14px;border-radius:6px;font-size:12px;white-space:nowrap">14:00 - 15:00 冲突合并调试</div>
+          <div style="background:rgba(249,115,22,.12);border-left:3px solid var(--or);padding:8px 14px;border-radius:6px;font-size:12px;white-space:nowrap">16:30 - 17:15 Android 高刷对齐</div>
+        </div>
       </div>
     `;
   } else if (type === 'pomo') {
@@ -913,14 +1098,16 @@ function addWidget(type) {
       <div class="widget-head">
         <div class="widget-title">⏱️ 沉浸番茄钟</div>
         <div class="widget-actions">
-          <span class="drag-handle" title="按住拖拽排序">⋮⋮</span>
-          <button class="widget-btn" onclick="toggleWidth(this)" title="切换通栏/半宽">↔</button>
+          <span class="col-badge" onclick="cycleSpan(this)" title="点击切换宽度">5列</span>
+          <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
           <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
         </div>
       </div>
-      <div class="mini-pomo-wrap">
-        <div class="mini-pomo-digits" style="position:static;font-size:24px">25:00</div>
-        <button class="btn btn-p btn-sm" onclick="toast('番茄钟已启动')">▶️ 开始专注</button>
+      <div class="widget-body">
+        <div class="mini-pomo-wrap">
+          <div class="mini-pomo-digits" style="position:static;font-size:24px">25:00</div>
+          <button class="btn btn-p btn-sm" onclick="toast('番茄钟已启动')">▶️ 开始专注</button>
+        </div>
       </div>
     `;
   } else {
@@ -929,24 +1116,26 @@ function addWidget(type) {
       <div class="widget-head">
         <div class="widget-title">📌 自定义小组件</div>
         <div class="widget-actions">
-          <span class="drag-handle" title="按住拖拽排序">⋮⋮</span>
-          <button class="widget-btn" onclick="toggleWidth(this)">↔</button>
-          <button class="widget-btn del" onclick="removeWidget(this)">✕</button>
+          <span class="col-badge" onclick="cycleSpan(this)" title="点击切换宽度">6列</span>
+          <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
+          <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
         </div>
       </div>
-      <div style="padding:16px;text-align:center;color:var(--tx3);font-size:12px">新组件已添加，可通过手柄自由拖动排序</div>
+      <div class="widget-body" style="padding:16px;text-align:center;color:var(--tx3);font-size:12px">
+        新组件已添加，边缘均可拖拽拉伸
+      </div>
     `;
   }
 
   grid.appendChild(div);
   initDragAndDrop();
   closeDrawer();
-  toast('已将新模块添加到工作台底部！');
+  toast('已将新模块添加到工作台，支持边框自由拉伸！');
 }
 
-// ==========================================
-// 3. 通用页面切换与交互
-// ==========================================
+// ==========================================================
+// 4. 通用页面切换与快捷键
+// ==========================================================
 function switchPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
   document.getElementById(id).classList.add('show');
@@ -987,7 +1176,7 @@ document.getElementById('thBtn').onclick=()=>{const c=document.documentElement.g
 
 function toast(m){const t=document.getElementById('toastEl');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 
-// 启动拖拽系统
+// 初始化拖拽与边框拉伸系统
 initDragAndDrop();
 </script>
 </body>
