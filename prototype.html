@@ -660,6 +660,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 .dock{position:fixed;right:0;top:32%;width:5px;height:100px;background:linear-gradient(180deg,var(--ac),var(--cy));border-radius:4px 0 0 4px;cursor:pointer;box-shadow:-2px 0 8px rgba(99,102,241,.35);transition:var(--tr);z-index:100}
 .dock:hover{width:240px;height:260px;top:28%;background:var(--bg1);border:1px solid var(--bdr-a);border-right:none;border-radius:var(--r2) 0 0 var(--r2);padding:14px;box-shadow:-6px 0 25px rgba(0,0,0,.55)}
 .dock-c{display:none;flex-direction:column;height:100%}.dock:hover .dock-c{display:flex}
+/* 音效跳动波形条 (Toggl & Forest 风格) */
+.sound-bars{display:inline-flex;align-items:flex-end;gap:2.5px;height:12px;margin-left:4px}
+.sound-bar{width:2px;background:var(--ac);border-radius:1px;animation:soundjump 0.8s ease-in-out infinite alternate}
+.sound-bar:nth-child(2){animation-delay:0.25s;height:10px}
+.sound-bar:nth-child(3){animation-delay:0.5s;height:6px}
+.sound-bar:nth-child(4){animation-delay:0.15s;height:12px}
+@keyframes soundjump{0%{height:2px}100%{height:12px}}
+
+/* LocalSend 风格 P2P 雷达波纹动画 */
+.radar-box{position:relative;width:60px;height:60px;display:flex;align-items:center;justify-content:center}
+.radar-ring{position:absolute;width:100%;height:100%;border:1.5px solid var(--em);border-radius:50%;animation:radarPing 2.4s cubic-bezier(0,0,.2,1) infinite;opacity:0}
+.radar-ring:nth-child(2){animation-delay:0.8s}
+.radar-ring:nth-child(3){animation-delay:1.6s}
+@keyframes radarPing{0%{transform:scale(0.3);opacity:0.9}80%{transform:scale(1.9);opacity:0}100%{transform:scale(2.3);opacity:0}}
+
+/* 任务属性检查器侧滑抽屉 (AppFlowy & Super Productivity 风格) */
+.task-inspector{position:fixed;top:0;right:-420px;width:390px;height:100vh;background:var(--bg1);border-left:1px solid var(--bdr);box-shadow:-6px 0 30px rgba(0,0,0,.6);z-index:360;padding:20px;display:flex;flex-direction:column;transition:right .25s cubic-bezier(.16,1,.3,1)}
+.task-inspector.open{right:0}
+.inspector-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:350;display:none}
+.inspector-overlay.open{display:block}
+
+/* 晨间规划向导与 LocalSend 弹窗 */
+.custom-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:380;display:none}
+.custom-modal-overlay.open{display:block}
+.custom-modal{position:fixed;top:16%;left:50%;transform:translateX(-50%) scale(.96);width:580px;background:var(--bg1);border:1px solid var(--bdr-a);border-radius:var(--r2);box-shadow:0 20px 50px rgba(0,0,0,.7),var(--shg);padding:20px 24px;z-index:390;opacity:0;pointer-events:none;transition:var(--tr)}
+.custom-modal.open{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1)}
+
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
 </style>
 </head>
@@ -672,11 +699,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
     <span class="tbar-brand">DailyDesk</span>
     <span style="font-size:9.5px;background:rgba(99,102,241,.12);color:var(--ac);padding:1px 5px;border-radius:3px">v2.6 Pro</span>
   </div>
+
+  <!-- 全局心流专注常驻胶囊 (借鉴 Super Productivity 最佳实践) -->
+  <div class="tbar-focus-runner" id="tbarFocusRunner" style="display:flex;align-items:center;gap:8px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);padding:2px 10px;border-radius:var(--rf);font-size:11px;color:var(--p0);cursor:pointer" onclick="openZenMode()" title="点击进入全屏禅模式">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--p0);animation:pulse 1.5s infinite"></span>
+    <span id="tbarRunningDigits" style="font-weight:700;font-variant-numeric:tabular-nums">21:40</span>
+    <span id="tbarRunningTask" style="color:var(--tx);font-weight:500;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">P2P 增量同步核心开发</span>
+    <button style="background:transparent;border:none;cursor:pointer;color:var(--tx2);font-size:11px;margin-left:4px" onclick="event.stopPropagation();toggleDashPomo()" id="tbarQuickPauseBtn" title="暂停/继续专注">⏸️</button>
+  </div>
+
   <div style="display:flex;align-items:center;gap:8px">
     <div class="sync-pill" style="border-color:rgba(99,102,241,.3);background:rgba(99,102,241,.12);color:var(--ac2)" onclick="switchPage('pg-ai')">
       <span>🤖</span> AI 智囊拆解 (GPT)
     </div>
-    <div class="sync-pill" onclick="toast('局域网在线：Android-Pixel (延迟 2ms，双向增量安全配对)')"><div class="sync-dot"></div>Android-Pixel 已互联</div>
+    <!-- LocalSend 风格 P2P 雷达状态胶囊 -->
+    <div class="sync-pill" onclick="openP2pRadar()" title="点击打开 LocalSend 风格局域网设备雷达与同步中心">
+      <div class="sync-dot"></div>Android-Pixel 已互联 · 2ms
+    </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
     <span>🔥 连续专注 52 天</span>
@@ -725,6 +764,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
         <div style="display:flex;gap:10px">
           <button class="btn btn-p" onclick="openDrawer()">+ 添加模块</button>
           <div class="search-bar" onclick="openCmd()">🔍 全局命令检索... <span class="kbd" style="margin-left:auto">Ctrl+K</span></div>
+        </div>
+      </div>
+
+      <!-- 今日工时容量与晨间规划条 (借鉴 Super Productivity 最佳实践) -->
+      <div style="background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh)">
+        <div style="display:flex;align-items:center;gap:12px;flex:1">
+          <span style="font-size:12px;font-weight:600">⚡ 今日精力容量：</span>
+          <div style="flex:0.5;background:var(--bg3);height:6px;border-radius:3px;overflow:hidden">
+            <div style="background:linear-gradient(90deg, var(--em), var(--cy));height:100%;width:68%"></div>
+          </div>
+          <span style="font-size:11px;color:var(--tx2)">已规划 <strong style="color:var(--cy)">5.5h</strong> / 建议上限 8.0h (68% 负荷适中 🟢)</span>
+          <span style="font-size:10.5px;color:var(--tx3)">· 剩余 3 项攻坚待办</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-s btn-sm" onclick="openDayPlanner()">📅 晨间向导 (Plan Day)</button>
+          <button class="btn btn-s btn-sm" onclick="toast('已从昨日自动延期 1 项未完成任务至今日收件箱')">🔄 从昨日延期 (Rollover)</button>
         </div>
       </div>
 
@@ -799,6 +854,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
                   </div>
                   <div class="todo-actions-hover" onclick="event.stopPropagation()">
                     <button class="todo-act-btn play" onclick="startFocusOn('P2P 增量同步核心模块')">▶ 专注</button>
+                    <button class="todo-act-btn" onclick="openTaskInspector('完成 P2P 局域网增量同步核心模块', 'P0', 3, '15:00')">🔍 详情</button>
                     <button class="todo-act-btn" onclick="toast('修改优先级')">🏷️</button>
                     <button class="todo-act-btn" onclick="removeTodoItem(this)">🗑️</button>
                   </div>
@@ -827,6 +883,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
                   </div>
                   <div class="todo-actions-hover" onclick="event.stopPropagation()">
                     <button class="todo-act-btn play" onclick="startFocusOn('对齐 Android 120Hz 高刷手势')">▶ 专注</button>
+                    <button class="todo-act-btn" onclick="openTaskInspector('对齐 Android 端 120Hz 高刷手势体验', 'P1', 1, '17:15')">🔍 详情</button>
                     <button class="todo-act-btn" onclick="removeTodoItem(this)">🗑️</button>
                   </div>
                   <span class="tag t-p1">P1</span>
@@ -921,9 +978,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
               </div>
             </div>
 
-            <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--tx3)">
-              <span>🌧️ 雨声白噪音</span>
-              <input type="range" min="0" max="100" value="65" style="width:90px;accent-color:var(--ac)" oninput="toast('白噪音音量: '+this.value+'%')">
+            <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;font-size:11px">
+              <div style="display:flex;align-items:center;gap:4px">
+                <span style="color:var(--tx3)">🎧 自然声境:</span>
+                <select id="pomoSoundSelect" onchange="changeSoundscape(this.value)" style="background:var(--bg2);border:1px solid var(--bdr);border-radius:4px;padding:2px 6px;font-size:10.5px;color:var(--tx);outline:none">
+                  <option value="rain">🌧️ 暴雨声</option>
+                  <option value="forest">🌲 森林鸟鸣</option>
+                  <option value="cafe">☕ 咖啡馆</option>
+                  <option value="waves">🌊 潮汐海浪</option>
+                </select>
+                <div class="sound-bars" title="自然声音实时混响中">
+                  <div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div>
+                </div>
+              </div>
+              <input type="range" min="0" max="100" value="65" style="width:75px;accent-color:var(--ac)" oninput="toast('环境音量: '+this.value+'%')">
             </div>
           </div>
         </div>
@@ -975,6 +1043,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
               <div class="memo-chip" onclick="filterMemos(this, 'arch')">#架构 (1)</div>
               <div class="memo-chip" onclick="filterMemos(this, 'ui')">#UI库 (1)</div>
               <div class="memo-chip" onclick="filterMemos(this, 'life')">#理念 (1)</div>
+            </div>
+
+            <!-- 30天灵感沉淀活跃热力小点阵 (借鉴 usememos 最佳实践) -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.05);font-size:10.5px;color:var(--tx3)">
+              <span>📅 近30天灵感沉淀 (累计 26 篇)：</span>
+              <div style="display:flex;gap:3px;align-items:center" title="最近30天灵感捕捉活跃度">
+                <div style="width:7px;height:7px;border-radius:1px;background:#26a641"></div>
+                <div style="width:7px;height:7px;border-radius:1px;background:#39d353"></div>
+                <div style="width:7px;height:7px;border-radius:1px;background:#0e4429"></div>
+                <div style="width:7px;height:7px;border-radius:1px;background:#006d32"></div>
+                <div style="width:7px;height:7px;border-radius:1px;background:#39d353"></div>
+                <div style="width:7px;height:7px;border-radius:1px;background:#26a641"></div>
+                <div style="width:7px;height:7px;border-radius:1px;background:#39d353"></div>
+                <div style="width:7px;height:7px;border-radius:1px;background:#006d32"></div>
+                <div style="width:7px;height:7px;border-radius:1px;background:#26a641"></div>
+                <div style="width:7px;height:7px;border-radius:1px;background:#39d353"></div>
+                <div style="width:7px;height:7px;border-radius:1px;background:#39d353"></div>
+                <div style="width:7px;height:7px;border-radius:1px;background:#26a641"></div>
+              </div>
             </div>
 
             <!-- 便签卡片瀑布流网格 -->
@@ -1161,7 +1248,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
               <div>
                 <div style="font-weight:600">💧 每日饮水 2000ml</div>
                 <div style="font-size:10px;color:var(--tx3);margin-top:2px">
-                  进度: <strong id="waterVal" style="color:var(--cy)">1250</strong> / 2000 ml
+                  进度: <strong id="waterVal" style="color:var(--cy)">1250</strong> / 2000 ml · <span style="color:var(--em);font-weight:600">88% 习惯健康度 🔥 连击52天</span>
                 </div>
               </div>
               <div class="habit-counter-controls">
@@ -1664,9 +1751,179 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
     <div class="cmd-item" onclick="switchPage('pg-dash');closeCmd()"><span class="cmd-icon">📊</span>今日全景 (工作台)</div>
     <div class="cmd-item" onclick="switchPage('pg-ai');closeCmd()"><span class="cmd-icon">🤖</span>AI 智囊 · 想法智能拆解器 (GPT)</div>
     <div class="cmd-item" onclick="switchPage('pg-todo');closeCmd()"><span class="cmd-icon">🎯</span>待办清单 GTD</div>
+    <div class="cmd-item" onclick="openDayPlanner();closeCmd()"><span class="cmd-icon">📅</span>今日晨间规划向导 (Plan Day)</div>
+    <div class="cmd-item" onclick="openP2pRadar();closeCmd()"><span class="cmd-icon">🔄</span>LocalSend 局域网同步雷达</div>
     <div class="cmd-item" onclick="switchPage('pg-cal');closeCmd()"><span class="cmd-icon">📅</span>时间块日历</div>
     <div class="cmd-item" onclick="openZenMode();closeCmd()"><span class="cmd-icon">⛶</span>进入全屏禅模式</div>
     <div class="cmd-item" onclick="openDrawer();closeCmd()"><span class="cmd-icon">🧩</span>添加工作台新模块</div>
+  </div>
+</div>
+
+<!-- ==========================================
+     LocalSend 风格局域网 P2P 设备雷达与同步弹窗
+========================================== -->
+<div class="custom-modal-overlay" id="p2pRadarOv" onclick="closeP2pRadar()"></div>
+<div class="custom-modal" id="p2pRadarModal">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--bdr);padding-bottom:10px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="brand-dot" style="background:var(--em);box-shadow:0 0 10px var(--em)"></div>
+      <h3 style="font-size:14px;font-weight:700">⚡ LocalSend 级局域网 P2P 增量同步中心</h3>
+    </div>
+    <button class="widget-btn" onclick="closeP2pRadar()" style="font-size:16px">✕</button>
+  </div>
+  
+  <div style="display:flex;gap:18px;align-items:center;margin-bottom:16px;background:var(--bg2);padding:14px;border-radius:var(--r)">
+    <div class="radar-box">
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div style="font-size:24px;position:relative;z-index:2">💻</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:12px;font-weight:600">当前本机：Windows-Workstation</div>
+      <div style="font-size:11px;color:var(--tx3);margin-top:2px">IP: 192.168.1.102:53317 · mDNS 服务广播中</div>
+      <div style="font-size:10px;color:var(--em);margin-top:4px">● 局域网端口侦听正常 · LWW 增量同步引擎就绪</div>
+    </div>
+  </div>
+
+  <div style="font-size:11.5px;font-weight:600;margin-bottom:8px;color:var(--tx2)">已配对与发现的对端设备：</div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg2);padding:12px 14px;border-radius:var(--r);border:1px solid rgba(16,185,129,.2)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:22px">📱</div>
+        <div>
+          <div style="font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px">
+            <span>Android-Pixel 8</span>
+            <span style="font-size:9.5px;padding:1px 5px;background:rgba(16,185,129,.15);color:var(--em);border-radius:3px">已配对 PIN 8848</span>
+          </div>
+          <div style="font-size:10.5px;color:var(--tx3);margin-top:2px">192.168.1.108:53317 · 延迟 2ms · 上次同步 3分钟前</div>
+        </div>
+      </div>
+      <button class="btn btn-p btn-sm" id="btnSyncNow" onclick="triggerManualSync(this)">
+        <span id="syncIcon">🔄</span> 立即双向同步
+      </button>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--bdr);padding-top:10px;display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--tx3)">
+    <span>🔒 纯局域网点对点直连，零云端中转，隐私100%安全</span>
+    <button class="btn btn-s btn-sm" onclick="toast('正在扫描局域网新设备...')">🔍 扫描新设备</button>
+  </div>
+</div>
+
+<!-- ==========================================
+     Super Productivity 风格晨间规划向导弹窗 (Day Plan Wizard)
+========================================== -->
+<div class="custom-modal-overlay" id="dayPlannerOv" onclick="closeDayPlanner()"></div>
+<div class="custom-modal" id="dayPlannerModal">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--bdr);padding-bottom:10px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">📅</span>
+      <div>
+        <h3 style="font-size:13.5px;font-weight:700">今日晨间作战规划 (Plan Your Day)</h3>
+        <p style="font-size:10.5px;color:var(--tx3)">选定今日三大攻坚焦点 (Top 3 Rocks)，防止超载过度承诺</p>
+      </div>
+    </div>
+    <button class="widget-btn" onclick="closeDayPlanner()" style="font-size:16px">✕</button>
+  </div>
+
+  <div style="background:rgba(99,102,241,.08);border:1px solid var(--bdr-a);border-radius:var(--r);padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px">
+    <span>⚡ 今日预计总负荷：<strong style="color:var(--cy)">5.5 小时</strong> (共 7 个番茄)</span>
+    <span style="color:var(--em);font-weight:600">负荷健康度 70% 🟢</span>
+  </div>
+
+  <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:6px">🎯 今日 Top 3 攻坚核心石块 (点击锁定)：</div>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+    <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg2);border-radius:var(--r);cursor:pointer;font-size:12px">
+      <input type="checkbox" checked>
+      <span class="tag t-p0">P0</span>
+      <span style="flex:1">完成 P2P 局域网增量同步核心模块</span>
+      <span style="color:var(--or);font-size:11px">🍅 3番茄</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg2);border-radius:var(--r);cursor:pointer;font-size:12px">
+      <input type="checkbox" checked>
+      <span class="tag t-p1">P1</span>
+      <span style="flex:1">对齐 Android 端 120Hz 高刷手势体验</span>
+      <span style="color:var(--or);font-size:11px">🍅 2番茄</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg2);border-radius:var(--r);cursor:pointer;font-size:12px">
+      <input type="checkbox" checked>
+      <span class="tag t-p1">P1</span>
+      <span style="flex:1">补充 SPEC 日历 iCal 导入导出段落</span>
+      <span style="color:var(--or);font-size:11px">🍅 1番茄</span>
+    </label>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--bdr);padding-top:12px">
+    <button class="btn btn-s btn-sm" onclick="toast('已顺延昨日 1 项未完成任务至收集箱')">从昨日结转未完任务 (Rollover)</button>
+    <button class="btn btn-p" onclick="closeDayPlanner();toast('🚀 今日作战规划已锁定，启动第一轮心流专注！')">🚀 锁定规划并开始今日工作</button>
+  </div>
+</div>
+
+<!-- ==========================================
+     AppFlowy & Super Productivity 风格任务属性侧滑抽屉
+========================================== -->
+<div class="inspector-overlay" id="inspectorOv" onclick="closeTaskInspector()"></div>
+<div class="task-inspector" id="taskInspector">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--bdr);padding-bottom:10px">
+    <div style="font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px">
+      <span>📋 任务属性检查器</span>
+    </div>
+    <button class="widget-btn" onclick="closeTaskInspector()" style="font-size:16px">✕</button>
+  </div>
+
+  <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px">
+    <div>
+      <label style="font-size:10.5px;color:var(--tx3);display:block;margin-bottom:4px">任务标题：</label>
+      <input type="text" id="inspectorTitle" value="完成 P2P 局域网增量同步核心模块" style="width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:7px 10px;font-size:13px;color:var(--tx);outline:none;font-weight:600">
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <label style="font-size:10.5px;color:var(--tx3);display:block;margin-bottom:4px">优先级：</label>
+        <select id="inspectorPriority" style="width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:6px;font-size:11.5px;color:var(--tx);outline:none">
+          <option value="P0" selected>P0 紧急重要</option>
+          <option value="P1">P1 重要不急</option>
+          <option value="P2">P2 紧急不急</option>
+          <option value="P3">P3 日常备选</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:10.5px;color:var(--tx3);display:block;margin-bottom:4px">截止时间：</label>
+        <input type="text" id="inspectorDue" value="今天 15:00" style="width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:6px;font-size:11.5px;color:var(--tx);outline:none">
+      </div>
+    </div>
+
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <label style="font-size:10.5px;color:var(--tx3)">工时番茄进度：</label>
+        <span style="font-size:11px;color:var(--or)" id="inspectorPomoText">🍅 2/3 (已消耗 2 番茄)</span>
+      </div>
+      <div style="background:var(--bg3);height:6px;border-radius:3px;overflow:hidden">
+        <div style="background:linear-gradient(90deg, var(--or), var(--am));height:100%;width:66%"></div>
+      </div>
+    </div>
+
+    <div>
+      <label style="font-size:10.5px;color:var(--tx3);display:block;margin-bottom:4px">子任务检查项 (2/3 完成)：</label>
+      <div style="background:var(--bg2);padding:8px 10px;border-radius:var(--r);display:flex;flex-direction:column;gap:5px;font-size:11.5px">
+        <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" checked> 搭建 Shelf 本地 HTTP 服务器路由</label>
+        <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" checked> 实现 LWW 时间戳差异比对逻辑</label>
+        <label style="display:flex;gap:6px;align-items:center"><input type="checkbox"> 编写多端并发修改冲突副本保护单元测试</label>
+      </div>
+    </div>
+
+    <div>
+      <label style="font-size:10.5px;color:var(--tx3);display:block;margin-bottom:4px">任务 Markdown 备注与技术记录：</label>
+      <textarea id="inspectorNotes" placeholder="记录技术难点、PR链接或复现步骤..." style="width:100%;height:100px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:8px;font-size:11.5px;color:var(--tx);outline:none;resize:vertical;font-family:inherit">注意在 Windows 端使用 53317 端口时需声明防火墙放行策略；Android 端需适配后台 Wi-Fi 锁 (MulticastLock)。</textarea>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--bdr);padding-top:12px;margin-top:auto;display:flex;justify-content:space-between">
+    <button class="btn btn-s btn-sm" onclick="toast('任务已删除');closeTaskInspector()">🗑️ 删除</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-p btn-sm" onclick="startFocusOn(document.getElementById('inspectorTitle').value);closeTaskInspector()">▶ 立即开启专注</button>
+      <button class="btn btn-s btn-sm" onclick="toast('属性已保存');closeTaskInspector()">💾 保存</button>
+    </div>
   </div>
 </div>
 
@@ -1715,6 +1972,7 @@ function submitNewTodoFromText(title, priority, pomo, time) {
       </div>
       <div class="todo-actions-hover" onclick="event.stopPropagation()">
         <button class="todo-act-btn play" onclick="startFocusOn('${title}')">▶ 专注</button>
+        <button class="todo-act-btn" onclick="openTaskInspector('${title}', '${priority}', ${pomo}, '${time}')">🔍 详情</button>
         <button class="todo-act-btn" onclick="toast('修改优先级')">🏷️</button>
         <button class="todo-act-btn" onclick="removeTodoItem(this)">🗑️</button>
       </div>
@@ -2628,6 +2886,68 @@ function applyDeconstructedItems(btn) {
   btn.disabled = true;
 
   toast(`🎉 成功将 AI 拆解出的 ${todoCount} 项待办、${sopCount} 项 SOP、${memoCount} 项随手记写入今日工作台！`);
+}
+
+// ==========================================================
+// 7. 高星开源项目精髓移植：LocalSend P2P 雷达、晨间向导与任务检查器
+// ==========================================================
+
+// 1) LocalSend 风格局域网同步雷达
+function openP2pRadar() {
+  document.getElementById('p2pRadarOv').classList.add('open');
+  document.getElementById('p2pRadarModal').classList.add('open');
+}
+function closeP2pRadar() {
+  document.getElementById('p2pRadarOv').classList.remove('open');
+  document.getElementById('p2pRadarModal').classList.remove('open');
+}
+function triggerManualSync(btn) {
+  const icon = document.getElementById('syncIcon');
+  if (icon) icon.style.animation = 'pulse 0.5s infinite';
+  btn.style.opacity = '0.7';
+  btn.style.pointerEvents = 'none';
+  toast('🔄 正在通过 53317 端口与 Android-Pixel 进行双向 LWW 差异比对...');
+  setTimeout(() => {
+    if (icon) icon.style.animation = '';
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+    toast('🎉 P2P 增量同步完成！双端数据已完全一致 (0 冲突，耗时 18ms)');
+  }, 1000);
+}
+
+// 2) Super Productivity 风格今日晨间作战规划向导 (Day Plan Wizard)
+function openDayPlanner() {
+  document.getElementById('dayPlannerOv').classList.add('open');
+  document.getElementById('dayPlannerModal').classList.add('open');
+}
+function closeDayPlanner() {
+  document.getElementById('dayPlannerOv').classList.remove('open');
+  document.getElementById('dayPlannerModal').classList.remove('open');
+}
+
+// 3) AppFlowy 风格任务属性检查器侧滑抽屉
+function openTaskInspector(title, priority, pomo, dueTime) {
+  document.getElementById('inspectorTitle').value = title;
+  document.getElementById('inspectorPriority').value = priority || 'P1';
+  document.getElementById('inspectorDue').value = dueTime || '今天 18:00';
+  document.getElementById('inspectorPomoText').textContent = `🍅 0/${pomo || 2} (预算 ${pomo || 2} 番茄)`;
+  document.getElementById('inspectorOv').classList.add('open');
+  document.getElementById('taskInspector').classList.add('open');
+}
+function closeTaskInspector() {
+  document.getElementById('inspectorOv').classList.remove('open');
+  document.getElementById('taskInspector').classList.remove('open');
+}
+
+// 4) 自然声境切换 (Toggl & Forest 风格)
+function changeSoundscape(type) {
+  const map = {
+    rain: '🌧️ 暴雨淅淅沥沥',
+    forest: '🌲 森林微风鸟鸣',
+    cafe: '☕ 午后街角咖啡馆环境音',
+    waves: '🌊 潮汐海浪拍岸声'
+  };
+  toast('已切换环境声境：' + (map[type] || type) + '，伴随白噪音波形律动');
 }
 
 initDragAndDrop();
