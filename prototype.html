@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DailyDesk v2 - 自由边框拉伸可调尺寸工作台</title>
+<title>DailyDesk v2 - 每日SOP与自由拉伸工作台</title>
 <style>
 :root{
   --bg0:#0a0d13;--bg1:#111827;--bg2:#1e293b;--bg3:#283548;--bg4:#334155;
@@ -81,10 +81,71 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 .todo:hover{border-color:var(--bdr);transform:translateX(2px)}
 .todo-l{display:flex;align-items:center;gap:9px}
 .ckb{width:16px;height:16px;border-radius:4px;border:2px solid var(--tx3);display:flex;align-items:center;justify-content:center;transition:var(--tr);flex-shrink:0;cursor:pointer}
-.todo:hover .ckb{border-color:var(--ac)}
+.todo:hover .ckb,.sop-item:hover .ckb{border-color:var(--ac)}
 .ckb.ck{background:var(--em);border-color:var(--em)}.ckb.ck::after{content:"✓";color:#fff;font-size:11px;font-weight:700}
 .todo.done .todo-tt{text-decoration:line-through;color:var(--tx3)}
 .todo-tt{font-size:12px}.todo-meta{font-size:10px;color:var(--tx3);margin-top:2px}
+
+/* ==========================================================
+   每日 SOP 流程组件专用样式 (Daily SOP Chronological Timeline)
+========================================================== */
+.sop-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 11px;
+  background:var(--bg2);
+  border-radius:var(--r);
+  border:1px solid transparent;
+  cursor:pointer;
+  transition:var(--tr);
+  position:relative;
+}
+.sop-item:hover{
+  border-color:var(--bdr);
+  transform:translateX(2px);
+}
+.sop-time{
+  font-size:11px;
+  font-weight:700;
+  color:var(--ac2);
+  width:44px;
+  flex-shrink:0;
+  font-variant-numeric:tabular-nums;
+  padding:2px 4px;
+  background:rgba(99,102,241,.12);
+  border-radius:4px;
+  text-align:center;
+  border:1px solid rgba(99,102,241,.2);
+}
+.sop-content{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.sop-title{
+  font-size:12px;
+  color:var(--tx);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.sop-sub{
+  font-size:10px;
+  color:var(--tx3);
+  margin-top:2px;
+}
+.sop-item.done .sop-title{
+  text-decoration:line-through;
+  color:var(--tx3);
+}
+.sop-item.done .sop-time{
+  opacity:0.6;
+  background:var(--bg3);
+  color:var(--tx3);
+  border-color:transparent;
+}
 
 /* ==========================================================
    可自由调整尺寸与拖拽重排的网格系统 (Draggable & Resizable Grid)
@@ -97,7 +158,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
   align-items:start;
 }
 
-/* 模块卡片基础定义 */
 .dash-widget{
   background:var(--bg1);
   border:1px solid var(--bdr);
@@ -121,7 +181,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 .dash-widget.w-5{grid-column:span 5}
 .dash-widget.w-4{grid-column:span 4}
 
-/* 拖动与拖拽覆盖效果 */
 .dash-widget.dragging{
   opacity:0.3;
   border:2px dashed var(--ac);
@@ -132,15 +191,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
   box-shadow:0 0 16px var(--acg);
 }
 
-/* ==========================================================
-   边框拉伸热区与视觉手柄 (Border Resize Handles)
-========================================================== */
+/* 边框拉伸热区 */
 .resizer{
   position:absolute;
   z-index:30;
   transition:background 0.15s, opacity 0.15s;
 }
-/* 右边框：拉大/缩小宽度 (按 12 栅格自适应) */
 .resizer-r{
   top:0;
   right:-4px;
@@ -153,8 +209,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
   box-shadow:0 0 8px var(--ac);
   opacity:1;
 }
-
-/* 底边框：拉高/缩小高度 */
 .resizer-b{
   left:0;
   bottom:-4px;
@@ -167,8 +221,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
   box-shadow:0 0 8px var(--ac);
   opacity:1;
 }
-
-/* 右下角对角拉伸手柄：同时拉大宽高 */
 .resizer-se{
   right:1px;
   bottom:1px;
@@ -212,7 +264,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 }
 .resize-indicator-badge.show{display:block}
 
-/* 卡片顶栏控件 */
+/* 卡片顶栏 */
 .widget-head{
   display:flex;
   align-items:center;
@@ -274,7 +326,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 .widget-btn:hover{background:var(--bg3);color:var(--tx)}
 .widget-btn.del:hover{background:rgba(239,68,68,.15);color:var(--ro)}
 
-/* 内部内容溢出保护 */
 .widget-body{
   flex:1;
   display:flex;
@@ -282,7 +333,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
   overflow:auto;
 }
 
-/* 四象限组件 */
+/* 四象限小组件 */
 .quad-mini-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -416,13 +467,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
   <main class="main">
 
     <!-- ==========================================
-         PAGE 1: 今日全景 (可边框拖拽自定义大小 + 排序工作台)
+         PAGE 1: 今日全景 (支持每日SOP + 自由拉伸排序工作台)
     ========================================== -->
     <div class="page show" id="pg-dash">
       <div class="vh">
         <div>
-          <h1>今日工作台 · 自由缩放排版 📐</h1>
-          <p class="vh-sub">👉 <strong>鼠标移到任意卡片的【右边框】或【底边框】或【右下角】即可直接拉大/缩小</strong>；按住右上角 <strong>⋮⋮ 手柄</strong> 拖动调换顺序</p>
+          <h1>今日工作台 · 每日SOP与自由排版 📐</h1>
+          <p class="vh-sub">包含【每日全天SOP流】从早到晚事项打勾；所有卡片<strong>右边框/底边框均可拖动拉大拉高</strong>，手柄可调换位置</p>
         </div>
         <div style="display:flex;gap:10px">
           <button class="btn btn-p" onclick="openDrawer()">+ 添加模块</button>
@@ -438,7 +489,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
           <div class="widget-head">
             <div class="widget-title">📈 今日生产力总览</div>
             <div class="widget-actions">
-              <span class="col-badge" onclick="cycleSpan(this)" title="点击快速切换列宽">12列</span>
+              <span class="col-badge" onclick="cycleSpan(this)" title="点击切换列宽">12列</span>
               <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
               <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
             </div>
@@ -453,22 +504,126 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
           </div>
         </div>
 
-        <!-- 模块 2: 今日核心任务 (初始 7 格) -->
-        <div class="dash-widget w-7" id="mod-top-todos" draggable="false">
+        <!-- 模块 2: 【新特性】每日全天 SOP 流程卡片 (时间轴待办形式，从早到晚，初始 7 格) -->
+        <div class="dash-widget w-7" id="mod-daily-sop" draggable="false">
           <div class="widget-head">
-            <div class="widget-title">🎯 今日 Top 核心聚焦</div>
+            <div class="widget-title">
+              <span>📋 每日全天 SOP 流程 (从早到晚)</span>
+              <span style="font-size:11px;color:var(--em);margin-left:4px" id="sopProgressText">5/9 完成 (56%)</span>
+            </div>
             <div class="widget-actions">
-              <span class="col-badge" onclick="cycleSpan(this)" title="点击快速切换列宽">7列</span>
+              <span class="col-badge" onclick="cycleSpan(this)" title="点击切换列宽">7列</span>
               <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
+              <button class="widget-btn" onclick="resetSopItems()" title="一键重置今日 SOP">🔄</button>
               <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
             </div>
           </div>
           <div class="widget-body">
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">完成 P2P 局域网增量同步核心模块</div><div class="todo-meta">预计 2 番茄 · 截止 15:00</div></div></div><span class="tag t-p0">P0</span></div>
-              <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">对齐 Android 端 120Hz 高刷手势体验</div><div class="todo-meta">时间块 16:30-17:15</div></div></div><span class="tag t-p1">P1</span></div>
-              <div class="todo done" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb ck"></div><div><div class="todo-tt">早会与任务池整理</div><div class="todo-meta">已于 09:30 完成</div></div></div><span class="tag t-p2">P2</span></div>
-              <div class="todo" onclick="toggleTodo(this)"><div class="todo-l"><div class="ckb"></div><div><div class="todo-tt">补充 SPEC 日历 iCal 导入导出段落</div><div class="todo-meta">截止 今天 18:00</div></div></div><span class="tag t-p1">P1</span></div>
+            <!-- 实时进度条 -->
+            <div style="background:var(--bg3);height:4px;border-radius:2px;margin-bottom:10px;overflow:hidden">
+              <div id="sopProgressBar" style="background:linear-gradient(90deg, var(--ac), var(--em));height:100%;width:56%;transition:width 0.3s"></div>
+            </div>
+
+            <!-- 从早到晚时间轴条目清单 -->
+            <div class="sop-timeline" id="sopTimeline" style="display:flex;flex-direction:column;gap:5px;max-height:280px;overflow-y:auto">
+              
+              <div class="sop-item done" onclick="toggleSopItem(this)">
+                <div class="sop-time">08:30</div>
+                <div class="ckb ck"></div>
+                <div class="sop-content">
+                  <div class="sop-title">🌅 晨间唤醒：饮温水 500ml + 制定今日要事</div>
+                  <div class="sop-sub">晨间仪式 · 唤醒脑活力</div>
+                </div>
+                <span class="tag" style="background:rgba(6,182,212,.15);color:var(--cy)">晨起</span>
+              </div>
+
+              <div class="sop-item done" onclick="toggleSopItem(this)">
+                <div class="sop-time">09:00</div>
+                <div class="ckb ck"></div>
+                <div class="sop-content">
+                  <div class="sop-title">📨 快速过一遍工作群与重要邮件</div>
+                  <div class="sop-sub">过滤阻断性需求，不陷入信息焦虑</div>
+                </div>
+                <span class="tag" style="background:rgba(99,102,241,.15);color:var(--ac)">沟通</span>
+              </div>
+
+              <div class="sop-item done" onclick="toggleSopItem(this)">
+                <div class="sop-time">09:30</div>
+                <div class="ckb ck"></div>
+                <div class="sop-content">
+                  <div class="sop-title">👥 每日早会对齐与任务池同步</div>
+                  <div class="sop-sub">明确今天产出目标与依赖项</div>
+                </div>
+                <span class="tag" style="background:rgba(59,130,246,.15);color:var(--p2)">早会</span>
+              </div>
+
+              <div class="sop-item done" onclick="toggleSopItem(this)">
+                <div class="sop-time">10:00</div>
+                <div class="ckb ck"></div>
+                <div class="sop-content">
+                  <div class="sop-title">⚡ 上午深度专注心流 (2 番茄 · 专注 P0 核心开发)</div>
+                  <div class="sop-sub">开启白噪音，解决最难的核心问题</div>
+                </div>
+                <span class="tag t-p0">P0</span>
+              </div>
+
+              <div class="sop-item done" onclick="toggleSopItem(this)">
+                <div class="sop-time">12:00</div>
+                <div class="ckb ck"></div>
+                <div class="sop-content">
+                  <div class="sop-title">🍱 午餐充电 + 20分钟散步/闭目冥想</div>
+                  <div class="sop-sub">身体机能充电，恢复意志力</div>
+                </div>
+                <span class="tag" style="background:rgba(16,185,129,.15);color:var(--em)">午休</span>
+              </div>
+
+              <div class="sop-item" onclick="toggleSopItem(this)">
+                <div class="sop-time">14:00</div>
+                <div class="ckb"></div>
+                <div class="sop-content">
+                  <div class="sop-title">💻 下午攻坚：模块联调与代码重构优化</div>
+                  <div class="sop-sub">推进 P1 关键特性交付与单元测试覆盖</div>
+                </div>
+                <span class="tag t-p1">P1</span>
+              </div>
+
+              <div class="sop-item" onclick="toggleSopItem(this)">
+                <div class="sop-time">17:00</div>
+                <div class="ckb"></div>
+                <div class="sop-content">
+                  <div class="sop-title">📦 代码提交与阶段进度同步</div>
+                  <div class="sop-sub">Git push 并核对今日工单流转</div>
+                </div>
+                <span class="tag" style="background:rgba(99,102,241,.15);color:var(--ac)">收尾</span>
+              </div>
+
+              <div class="sop-item" onclick="toggleSopItem(this)">
+                <div class="sop-time">21:00</div>
+                <div class="ckb"></div>
+                <div class="sop-content">
+                  <div class="sop-title">📝 晚间自动化复盘与明日 Top 3 规划</div>
+                  <div class="sop-sub">记录今日感悟，一键局域网增量同步至手机</div>
+                </div>
+                <span class="tag" style="background:rgba(245,158,11,.15);color:var(--am)">复盘</span>
+              </div>
+
+              <div class="sop-item" onclick="toggleSopItem(this)">
+                <div class="sop-time">23:00</div>
+                <div class="ckb"></div>
+                <div class="sop-content">
+                  <div class="sop-title">🌙 远离电子屏幕，准备优质睡眠</div>
+                  <div class="sop-sub">连续 52 天健康作息守护</div>
+                </div>
+                <span class="tag" style="background:rgba(244,63,94,.15);color:var(--ro)">睡眠</span>
+              </div>
+
+            </div>
+
+            <!-- 添加自定义 SOP 步骤工具条 -->
+            <div style="display:flex;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid var(--bdr)">
+              <input type="text" id="sopNewTime" placeholder="16:00" style="width:58px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:4px 6px;font-size:11px;color:var(--tx);outline:none;text-align:center">
+              <input type="text" id="sopNewText" placeholder="添加今天专属步骤 (如 16:00 团队头脑风暴)..." style="flex:1;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:4px 8px;font-size:11px;color:var(--tx);outline:none" onkeydown="if(event.key==='Enter')addSopItem()">
+              <button class="btn btn-p btn-sm" onclick="addSopItem()">+ 添加</button>
             </div>
           </div>
         </div>
@@ -478,7 +633,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
           <div class="widget-head">
             <div class="widget-title">⏱️ 沉浸番茄钟</div>
             <div class="widget-actions">
-              <span class="col-badge" onclick="cycleSpan(this)" title="点击快速切换列宽">5列</span>
+              <span class="col-badge" onclick="cycleSpan(this)" title="点击切换列宽">5列</span>
               <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
               <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
             </div>
@@ -503,7 +658,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
           <div class="widget-head">
             <div class="widget-title">🧩 四象限看板 (Eisenhower Matrix)</div>
             <div class="widget-actions">
-              <span class="col-badge" onclick="cycleSpan(this)" title="点击快速切换列宽">7列</span>
+              <span class="col-badge" onclick="cycleSpan(this)" title="点击切换列宽">7列</span>
               <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
               <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
             </div>
@@ -545,7 +700,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
           <div class="widget-head">
             <div class="widget-title">🌱 今日习惯打卡</div>
             <div class="widget-actions">
-              <span class="col-badge" onclick="cycleSpan(this)" title="点击快速切换列宽">5列</span>
+              <span class="col-badge" onclick="cycleSpan(this)" title="点击切换列宽">5列</span>
               <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
               <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
             </div>
@@ -573,7 +728,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
           <div class="widget-head">
             <div class="widget-title">💡 灵感碎片随手记</div>
             <div class="widget-actions">
-              <span class="col-badge" onclick="cycleSpan(this)" title="点击快速切换列宽">12列</span>
+              <span class="col-badge" onclick="cycleSpan(this)" title="点击切换列宽">12列</span>
               <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
               <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
             </div>
@@ -714,6 +869,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
     
     <div class="mod-card">
       <div class="mod-info">
+        <h4>📋 每日全天 SOP 流程卡片</h4>
+        <p>按早中晚时间序排列的固定日常工作流待办</p>
+      </div>
+      <button class="btn btn-p btn-sm" onclick="addWidget('sop')">+ 添加</button>
+    </div>
+
+    <div class="mod-card">
+      <div class="mod-info">
         <h4>🧩 四象限看板 (Eisenhower Matrix)</h4>
         <p>紧急与重要二维分类，直观拖拽</p>
       </div>
@@ -845,7 +1008,6 @@ function attachResizers(widget) {
       const gridRect = grid.getBoundingClientRect();
       const colWidth = (gridRect.width - (11 * 16)) / 12;
 
-      // 提取现有 span
       const currentStyleSpan = widget.style.gridColumn.replace('span ', '');
       if (currentStyleSpan) {
         startSpan = parseInt(currentStyleSpan);
@@ -889,7 +1051,6 @@ function handleResizeMove(e) {
     currentSpan = Math.max(3, Math.min(12, Math.round((targetWidth + 16) / (colWidth + 16))));
     resizingWidget.style.gridColumn = `span ${currentSpan}`;
 
-    // 同步顶栏列宽徽章
     const badgeEl = resizingWidget.querySelector('.col-badge');
     if (badgeEl) badgeEl.textContent = `${currentSpan}列`;
   }
@@ -932,7 +1093,6 @@ function updateResizeBadge(x, y, span, height) {
   badge.textContent = `📐 宽度: ${span} 列 (${pct}%) · 高度: ${Math.round(height)}px`;
 }
 
-// 点击列宽徽章快速循环切换宽度 (4 -> 6 -> 8 -> 12 -> 4)
 function cycleSpan(badge) {
   const widget = badge.closest('.dash-widget');
   let currentSpan = 7;
@@ -952,7 +1112,73 @@ function cycleSpan(badge) {
 }
 
 // ==========================================================
-// 2. 拖拽排序核心逻辑 (Drag & Drop Reorder)
+// 2. 每日 SOP 核心业务逻辑 (Daily SOP Interactions)
+// ==========================================================
+function toggleSopItem(el) {
+  el.classList.toggle('done');
+  const c = el.querySelector('.ckb');
+  if (c) c.classList.toggle('ck');
+  updateSopProgress();
+  if (el.classList.contains('done')) {
+    toast('✓ 已达成 SOP 节点：' + el.querySelector('.sop-title').textContent.trim());
+  }
+}
+
+function updateSopProgress() {
+  const items = document.querySelectorAll('.sop-item');
+  const doneItems = document.querySelectorAll('.sop-item.done');
+  const total = items.length;
+  const done = doneItems.length;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+
+  const textEl = document.getElementById('sopProgressText');
+  const barEl = document.getElementById('sopProgressBar');
+  if (textEl) textEl.textContent = `${done}/${total} 完成 (${pct}%)`;
+  if (barEl) barEl.style.width = `${pct}%`;
+}
+
+function resetSopItems() {
+  document.querySelectorAll('.sop-item').forEach(item => {
+    item.classList.remove('done');
+    const c = item.querySelector('.ckb');
+    if (c) c.classList.remove('ck');
+  });
+  updateSopProgress();
+  toast('已重置今日 SOP 状态，迎接崭新一天！');
+}
+
+function addSopItem() {
+  const timeIn = document.getElementById('sopNewTime');
+  const textIn = document.getElementById('sopNewText');
+  const time = timeIn.value.trim() || '随手';
+  const text = textIn.value.trim();
+  if (!text) {
+    toast('请输入今日 SOP 步骤内容');
+    return;
+  }
+
+  const timeline = document.getElementById('sopTimeline');
+  const div = document.createElement('div');
+  div.className = 'sop-item';
+  div.onclick = function() { toggleSopItem(this); };
+  div.innerHTML = `
+    <div class="sop-time">${time}</div>
+    <div class="ckb"></div>
+    <div class="sop-content">
+      <div class="sop-title">${text}</div>
+      <div class="sop-sub">今日新增日常例程</div>
+    </div>
+    <span class="tag" style="background:rgba(99,102,241,.15);color:var(--ac)">自定</span>
+  `;
+  timeline.appendChild(div);
+  timeIn.value = '';
+  textIn.value = '';
+  updateSopProgress();
+  toast(`已添加 SOP 节点：[${time}] ${text}`);
+}
+
+// ==========================================================
+// 3. 拖拽排序核心逻辑 (Drag & Drop Reorder)
 // ==========================================================
 let dragSource = null;
 
@@ -961,7 +1187,6 @@ function initDragAndDrop() {
   const widgets = grid.querySelectorAll('.dash-widget');
 
   widgets.forEach(widget => {
-    // 注入边框拉伸手柄
     attachResizers(widget);
 
     const handle = widget.querySelector('.drag-handle');
@@ -1007,7 +1232,6 @@ function initDragAndDrop() {
   });
 }
 
-// 删除模块
 function removeWidget(btn) {
   const widget = btn.closest('.dash-widget');
   widget.style.opacity = '0';
@@ -1019,7 +1243,7 @@ function removeWidget(btn) {
 }
 
 // ==========================================================
-// 3. 添加模块库逻辑 (Add Modules to Dashboard)
+// 4. 添加模块库逻辑 (Add Modules to Dashboard)
 // ==========================================================
 function openDrawer() {
   document.getElementById('drawerOv').classList.add('open');
@@ -1036,7 +1260,31 @@ function addWidget(type) {
   const uid = 'mod-' + type + '-' + Date.now();
   div.id = uid;
 
-  if (type === 'matrix') {
+  if (type === 'sop') {
+    div.className = 'dash-widget w-7';
+    div.innerHTML = `
+      <div class="widget-head">
+        <div class="widget-title">
+          <span>📋 每日全天 SOP 流程 (从早到晚)</span>
+          <span style="font-size:11px;color:var(--em);margin-left:4px">进行中</span>
+        </div>
+        <div class="widget-actions">
+          <span class="col-badge" onclick="cycleSpan(this)" title="点击切换列宽">7列</span>
+          <span class="drag-handle" title="按住手柄拖动排序">⋮⋮</span>
+          <button class="widget-btn" onclick="resetSopItems()" title="重置今天所有 SOP">🔄</button>
+          <button class="widget-btn del" onclick="removeWidget(this)" title="移除卡片">✕</button>
+        </div>
+      </div>
+      <div class="widget-body">
+        <div class="sop-timeline" style="display:flex;flex-direction:column;gap:5px">
+          <div class="sop-item" onclick="toggleSopItem(this)"><div class="sop-time">08:30</div><div class="ckb"></div><div class="sop-content"><div class="sop-title">晨间唤醒：饮温水 500ml</div><div class="sop-sub">例程</div></div></div>
+          <div class="sop-item" onclick="toggleSopItem(this)"><div class="sop-time">09:30</div><div class="ckb"></div><div class="sop-content"><div class="sop-title">每日早会对齐与任务同步</div><div class="sop-sub">例程</div></div></div>
+          <div class="sop-item" onclick="toggleSopItem(this)"><div class="sop-time">14:00</div><div class="ckb"></div><div class="sop-content"><div class="sop-title">下午高能深度攻坚</div><div class="sop-sub">例程</div></div></div>
+          <div class="sop-item" onclick="toggleSopItem(this)"><div class="sop-time">21:00</div><div class="ckb"></div><div class="sop-content"><div class="sop-title">晚间复盘与明日规划</div><div class="sop-sub">例程</div></div></div>
+        </div>
+      </div>
+    `;
+  } else if (type === 'matrix') {
     div.className = 'dash-widget w-7';
     div.innerHTML = `
       <div class="widget-head">
@@ -1088,7 +1336,6 @@ function addWidget(type) {
         <div style="display:flex;gap:12px;overflow-x:auto;padding:6px 0">
           <div style="background:rgba(99,102,241,.12);border-left:3px solid var(--ac);padding:8px 14px;border-radius:6px;font-size:12px;white-space:nowrap">10:00 - 12:00 P2P 开发 (2番茄)</div>
           <div style="background:rgba(6,182,212,.12);border-left:3px solid var(--cy);padding:8px 14px;border-radius:6px;font-size:12px;white-space:nowrap">14:00 - 15:00 冲突合并调试</div>
-          <div style="background:rgba(249,115,22,.12);border-left:3px solid var(--or);padding:8px 14px;border-radius:6px;font-size:12px;white-space:nowrap">16:30 - 17:15 Android 高刷对齐</div>
         </div>
       </div>
     `;
@@ -1134,7 +1381,7 @@ function addWidget(type) {
 }
 
 // ==========================================================
-// 4. 通用页面切换与快捷键
+// 5. 通用页面切换与快捷键
 // ==========================================================
 function switchPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
