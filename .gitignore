@@ -1,5 +1,7 @@
 .worktrees/
 .superpowers/
+/dailydesk/
+/artifacts/agent-logs/
 
 # Miscellaneous
 *.class
