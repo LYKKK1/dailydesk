@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "taskId": "dailydesk-2026-10-10",
+  "lastCheckpointRef": "docs/aegis/work/2026-10-10-dailydesk-implementation/todo-checkpoint-draft.json",
+  "resumeInstruction": "从 worktree 根目录继续；默认模型固定 DeepSeek-V4.1-Flash，禁止 GLM5.3",
+  "knownPartialWork": [
+    "工作树与基线核对；Flutter 工程归位；离线依赖解析；初始 flutter test/analyze 通过"
+  ],
+  "mustReadBeforeContinuing": [
+    "docs/aegis/work/2026-10-10-dailydesk-implementation/10-intent.md",
+    "docs/aegis/work/2026-10-10-dailydesk-implementation/20-checkpoint.md",
+    "docs/aegis/work/2026-10-10-dailydesk-implementation/todo-checkpoint-draft.json"
+  ],
+  "unsafeToAssume": [
+    "尚未实现任何业务功能；构建产物尚不存在"
+  ]
+}

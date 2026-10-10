@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "taskId": "dailydesk-2026-10-10",
+  "currentTodo": "Phase 0/1 基础设施",
+  "completedTodos": [
+    "工作树与基线核对；Flutter 工程归位；离线依赖解析；初始 flutter test/analyze 通过"
+  ],
+  "activeSlice": "Phase 0.1 提交脚手架基线",
+  "evidenceRefs": [
+    "flutter pub get --offline: pass",
+    "flutter test: 1 passed",
+    "flutter analyze: 0 issues"
+  ],
+  "blockedOn": null,
+  "nextStep": "提交脚手架，然后执行 Phase 0.2-0.4",
+  "updatedAt": "2026-10-10"
+}

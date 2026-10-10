@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "taskId": "dailydesk-2026-10-10",
+  "taskIntentRef": "docs/aegis/work/2026-10-10-dailydesk-implementation/task-intent-draft.json",
+  "baselineRefs": [
+    "docs/superpowers/plans/2025-10-10-dailydesk-implementation.md",
+    "design-spec.md",
+    "home-pages-借鉴指南.md",
+    "prototype.html"
+  ],
+  "scopeStatus": "not-yet-verified",
+  "compatStatus": "not-yet-verified",
+  "retirementStatus": "not-yet-verified",
+  "newRiskSignals": [
+    "大型多模块实施、持久化 schema、网络同步、双端构建"
+  ],
+  "decision": "needs-baseline-readback"
+}

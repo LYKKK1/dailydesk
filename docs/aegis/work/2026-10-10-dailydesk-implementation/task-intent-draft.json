@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "requestedOutcome": "完成实施计划全部任务并通过测试、分析、双端构建与打包",
+  "goal": "交付可运行的 DailyDesk Windows 与 Android 发布包",
+  "successEvidence": [
+    "flutter test 与 flutter analyze 通过；Windows/Android release 构建成功；发布压缩包及校验和生成"
+  ],
+  "stopCondition": "done when all plan tasks and release package verification pass; blocked if required SDK/signing/toolchain is unavailable; needs-verification if any acceptance path lacks fresh evidence",
+  "nonGoals": [
+    "不实现计划未列出的云后端；不启用 GLM5.3 并行代理"
+  ],
+  "scope": "Flutter 双端应用、数据库、桌面能力、核心功能、同步、质量门禁与发布打包",
+  "changeKinds": [
+    "feature"
+  ],
+  "riskHints": [
+    "大型多模块实施、持久化 schema、网络同步、双端构建"
+  ]
+}
