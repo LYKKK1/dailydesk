@@ -34,18 +34,19 @@ class HabitRepository {
           ..where(
             (record) =>
                 record.habitId.equals(habitId) &
-                record.recordDate.equals(recordDate) &
-                record.deletedAt.isNull(),
+                record.recordDate.equals(recordDate),
           ))
         .get();
 
     if (existing.isNotEmpty) {
+      final row = existing.single;
+      final now = nowMs();
       await (_db.update(_db.habitRecords)
-            ..where((record) => record.id.equals(existing.single.id)))
+            ..where((record) => record.id.equals(row.id)))
           .write(
         HabitRecordsCompanion(
-          deletedAt: Value(nowMs()),
-          updatedAt: Value(nowMs()),
+          deletedAt: Value(row.deletedAt == null ? now : null),
+          updatedAt: Value(now),
         ),
       );
       return;
@@ -54,7 +55,7 @@ class HabitRepository {
     final now = nowMs();
     await _db.into(_db.habitRecords).insert(
           HabitRecordsCompanion.insert(
-            id: newUlid(),
+            id: '${habitId}_$recordDate',
             habitId: habitId,
             recordDate: recordDate,
             createdAt: now,

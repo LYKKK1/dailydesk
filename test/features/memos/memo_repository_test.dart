@@ -1,14 +1,14 @@
 import 'package:dailydesk/core/database/app_database.dart';
 import 'package:dailydesk/features/memos/data/memo_repository.dart';
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../test_database.dart';
 
 void main() {
   late AppDatabase db;
   late MemoRepository repo;
 
   setUp(() {
-    db = AppDatabase(NativeDatabase.memory());
+    db = createTestDatabase();
     repo = MemoRepository(db);
   });
 

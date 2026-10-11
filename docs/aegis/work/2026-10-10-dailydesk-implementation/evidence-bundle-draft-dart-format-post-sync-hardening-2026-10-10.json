@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "artifactKey": "dart-format-post-sync-hardening-2026-10-10",
+  "type": "command",
+  "source": "dart format --output=none --set-exit-if-changed lib test",
+  "summary": "116 个 Dart 文件格式检查通过，0 changed",
+  "verifier": "Codex"
+}

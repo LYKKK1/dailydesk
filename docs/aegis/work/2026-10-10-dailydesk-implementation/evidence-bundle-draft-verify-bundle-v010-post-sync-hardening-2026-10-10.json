@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "artifactKey": "verify-bundle-v010-post-sync-hardening-2026-10-10",
+  "type": "command",
+  "source": "dart run scripts/verify_bundle.dart --skip-size --tag v0.1.0",
+  "summary": "URL 白名单和 tag/version 一致性校验通过；体积检查按命令显式跳过",
+  "verifier": "Codex"
+}

@@ -2,17 +2,12 @@
   "schemaVersion": "aegis.schema.v0",
   "taskId": "dailydesk-2026-10-10",
   "taskIntentRef": "docs/aegis/work/2026-10-10-dailydesk-implementation/task-intent-draft.json",
-  "baselineRefs": [
-    "docs/superpowers/plans/2025-10-10-dailydesk-implementation.md",
-    "design-spec.md",
-    "home-pages-借鉴指南.md",
-    "prototype.html"
-  ],
-  "scopeStatus": "not-yet-verified",
-  "compatStatus": "not-yet-verified",
-  "retirementStatus": "not-yet-verified",
+  "baselineRefs": [],
+  "scopeStatus": "partial",
+  "compatStatus": "tests-verified",
+  "retirementStatus": "partial",
   "newRiskSignals": [
-    "大型多模块实施、持久化 schema、网络同步、双端构建"
+    "Android/Windows 发布构建与真实设备验收仍受外部工具链阻塞；本轮只增加本地质量证据，未扩大功能范围"
   ],
-  "decision": "needs-baseline-readback"
+  "decision": "needs-verification"
 }

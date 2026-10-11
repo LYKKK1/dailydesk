@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "artifactKey": "sync-hardening-regressions-2026-10-10",
+  "type": "regression",
+  "source": "test/features/sync/discovery_service_test.dart; test/features/sync/sync_orchestrator_test.dart; test/features/sync/sync_auth_test.dart; test/features/sync/sync_view_test.dart",
+  "summary": "覆盖合法 mDNS 参数、生命周期竞态、远端未来时钟隔离、PUSH 不回显、checkpoint 校验、手动 IP 真实 peer 复用；相关测试通过",
+  "verifier": "Codex"
+}

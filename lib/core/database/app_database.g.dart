@@ -2066,6 +2066,14 @@ class $PomodoroLogsTable extends PomodoroLogs
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('pomodoro'));
+  static const VerificationMeta _cycleRoundMeta =
+      const VerificationMeta('cycleRound');
+  @override
+  late final GeneratedColumn<int> cycleRound = GeneratedColumn<int>(
+      'cycle_round', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
   static const VerificationMeta _startedAtMeta =
       const VerificationMeta('startedAt');
   @override
@@ -2102,6 +2110,7 @@ class $PomodoroLogsTable extends PomodoroLogs
         todoId,
         durationMinutes,
         mode,
+        cycleRound,
         startedAt,
         endedAt,
         createdAt,
@@ -2138,6 +2147,12 @@ class $PomodoroLogsTable extends PomodoroLogs
     if (data.containsKey('mode')) {
       context.handle(
           _modeMeta, mode.isAcceptableOrUnknown(data['mode']!, _modeMeta));
+    }
+    if (data.containsKey('cycle_round')) {
+      context.handle(
+          _cycleRoundMeta,
+          cycleRound.isAcceptableOrUnknown(
+              data['cycle_round']!, _cycleRoundMeta));
     }
     if (data.containsKey('started_at')) {
       context.handle(_startedAtMeta,
@@ -2184,6 +2199,8 @@ class $PomodoroLogsTable extends PomodoroLogs
           .read(DriftSqlType.int, data['${effectivePrefix}duration_minutes'])!,
       mode: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}mode'])!,
+      cycleRound: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}cycle_round'])!,
       startedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}started_at'])!,
       endedAt: attachedDatabase.typeMapping
@@ -2208,6 +2225,7 @@ class PomodoroLog extends DataClass implements Insertable<PomodoroLog> {
   final String? todoId;
   final int durationMinutes;
   final String mode;
+  final int cycleRound;
   final int startedAt;
   final int endedAt;
   final int createdAt;
@@ -2218,6 +2236,7 @@ class PomodoroLog extends DataClass implements Insertable<PomodoroLog> {
       this.todoId,
       required this.durationMinutes,
       required this.mode,
+      required this.cycleRound,
       required this.startedAt,
       required this.endedAt,
       required this.createdAt,
@@ -2232,6 +2251,7 @@ class PomodoroLog extends DataClass implements Insertable<PomodoroLog> {
     }
     map['duration_minutes'] = Variable<int>(durationMinutes);
     map['mode'] = Variable<String>(mode);
+    map['cycle_round'] = Variable<int>(cycleRound);
     map['started_at'] = Variable<int>(startedAt);
     map['ended_at'] = Variable<int>(endedAt);
     map['created_at'] = Variable<int>(createdAt);
@@ -2249,6 +2269,7 @@ class PomodoroLog extends DataClass implements Insertable<PomodoroLog> {
           todoId == null && nullToAbsent ? const Value.absent() : Value(todoId),
       durationMinutes: Value(durationMinutes),
       mode: Value(mode),
+      cycleRound: Value(cycleRound),
       startedAt: Value(startedAt),
       endedAt: Value(endedAt),
       createdAt: Value(createdAt),
@@ -2267,6 +2288,7 @@ class PomodoroLog extends DataClass implements Insertable<PomodoroLog> {
       todoId: serializer.fromJson<String?>(json['todoId']),
       durationMinutes: serializer.fromJson<int>(json['durationMinutes']),
       mode: serializer.fromJson<String>(json['mode']),
+      cycleRound: serializer.fromJson<int>(json['cycleRound']),
       startedAt: serializer.fromJson<int>(json['startedAt']),
       endedAt: serializer.fromJson<int>(json['endedAt']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
@@ -2282,6 +2304,7 @@ class PomodoroLog extends DataClass implements Insertable<PomodoroLog> {
       'todoId': serializer.toJson<String?>(todoId),
       'durationMinutes': serializer.toJson<int>(durationMinutes),
       'mode': serializer.toJson<String>(mode),
+      'cycleRound': serializer.toJson<int>(cycleRound),
       'startedAt': serializer.toJson<int>(startedAt),
       'endedAt': serializer.toJson<int>(endedAt),
       'createdAt': serializer.toJson<int>(createdAt),
@@ -2295,6 +2318,7 @@ class PomodoroLog extends DataClass implements Insertable<PomodoroLog> {
           Value<String?> todoId = const Value.absent(),
           int? durationMinutes,
           String? mode,
+          int? cycleRound,
           int? startedAt,
           int? endedAt,
           int? createdAt,
@@ -2305,6 +2329,7 @@ class PomodoroLog extends DataClass implements Insertable<PomodoroLog> {
         todoId: todoId.present ? todoId.value : this.todoId,
         durationMinutes: durationMinutes ?? this.durationMinutes,
         mode: mode ?? this.mode,
+        cycleRound: cycleRound ?? this.cycleRound,
         startedAt: startedAt ?? this.startedAt,
         endedAt: endedAt ?? this.endedAt,
         createdAt: createdAt ?? this.createdAt,
@@ -2319,6 +2344,8 @@ class PomodoroLog extends DataClass implements Insertable<PomodoroLog> {
           ? data.durationMinutes.value
           : this.durationMinutes,
       mode: data.mode.present ? data.mode.value : this.mode,
+      cycleRound:
+          data.cycleRound.present ? data.cycleRound.value : this.cycleRound,
       startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
       endedAt: data.endedAt.present ? data.endedAt.value : this.endedAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -2334,6 +2361,7 @@ class PomodoroLog extends DataClass implements Insertable<PomodoroLog> {
           ..write('todoId: $todoId, ')
           ..write('durationMinutes: $durationMinutes, ')
           ..write('mode: $mode, ')
+          ..write('cycleRound: $cycleRound, ')
           ..write('startedAt: $startedAt, ')
           ..write('endedAt: $endedAt, ')
           ..write('createdAt: $createdAt, ')
@@ -2344,8 +2372,8 @@ class PomodoroLog extends DataClass implements Insertable<PomodoroLog> {
   }
 
   @override
-  int get hashCode => Object.hash(id, todoId, durationMinutes, mode, startedAt,
-      endedAt, createdAt, updatedAt, deletedAt);
+  int get hashCode => Object.hash(id, todoId, durationMinutes, mode, cycleRound,
+      startedAt, endedAt, createdAt, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2354,6 +2382,7 @@ class PomodoroLog extends DataClass implements Insertable<PomodoroLog> {
           other.todoId == this.todoId &&
           other.durationMinutes == this.durationMinutes &&
           other.mode == this.mode &&
+          other.cycleRound == this.cycleRound &&
           other.startedAt == this.startedAt &&
           other.endedAt == this.endedAt &&
           other.createdAt == this.createdAt &&
@@ -2366,6 +2395,7 @@ class PomodoroLogsCompanion extends UpdateCompanion<PomodoroLog> {
   final Value<String?> todoId;
   final Value<int> durationMinutes;
   final Value<String> mode;
+  final Value<int> cycleRound;
   final Value<int> startedAt;
   final Value<int> endedAt;
   final Value<int> createdAt;
@@ -2377,6 +2407,7 @@ class PomodoroLogsCompanion extends UpdateCompanion<PomodoroLog> {
     this.todoId = const Value.absent(),
     this.durationMinutes = const Value.absent(),
     this.mode = const Value.absent(),
+    this.cycleRound = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.endedAt = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2389,6 +2420,7 @@ class PomodoroLogsCompanion extends UpdateCompanion<PomodoroLog> {
     this.todoId = const Value.absent(),
     required int durationMinutes,
     this.mode = const Value.absent(),
+    this.cycleRound = const Value.absent(),
     required int startedAt,
     required int endedAt,
     required int createdAt,
@@ -2406,6 +2438,7 @@ class PomodoroLogsCompanion extends UpdateCompanion<PomodoroLog> {
     Expression<String>? todoId,
     Expression<int>? durationMinutes,
     Expression<String>? mode,
+    Expression<int>? cycleRound,
     Expression<int>? startedAt,
     Expression<int>? endedAt,
     Expression<int>? createdAt,
@@ -2418,6 +2451,7 @@ class PomodoroLogsCompanion extends UpdateCompanion<PomodoroLog> {
       if (todoId != null) 'todo_id': todoId,
       if (durationMinutes != null) 'duration_minutes': durationMinutes,
       if (mode != null) 'mode': mode,
+      if (cycleRound != null) 'cycle_round': cycleRound,
       if (startedAt != null) 'started_at': startedAt,
       if (endedAt != null) 'ended_at': endedAt,
       if (createdAt != null) 'created_at': createdAt,
@@ -2432,6 +2466,7 @@ class PomodoroLogsCompanion extends UpdateCompanion<PomodoroLog> {
       Value<String?>? todoId,
       Value<int>? durationMinutes,
       Value<String>? mode,
+      Value<int>? cycleRound,
       Value<int>? startedAt,
       Value<int>? endedAt,
       Value<int>? createdAt,
@@ -2443,6 +2478,7 @@ class PomodoroLogsCompanion extends UpdateCompanion<PomodoroLog> {
       todoId: todoId ?? this.todoId,
       durationMinutes: durationMinutes ?? this.durationMinutes,
       mode: mode ?? this.mode,
+      cycleRound: cycleRound ?? this.cycleRound,
       startedAt: startedAt ?? this.startedAt,
       endedAt: endedAt ?? this.endedAt,
       createdAt: createdAt ?? this.createdAt,
@@ -2466,6 +2502,9 @@ class PomodoroLogsCompanion extends UpdateCompanion<PomodoroLog> {
     }
     if (mode.present) {
       map['mode'] = Variable<String>(mode.value);
+    }
+    if (cycleRound.present) {
+      map['cycle_round'] = Variable<int>(cycleRound.value);
     }
     if (startedAt.present) {
       map['started_at'] = Variable<int>(startedAt.value);
@@ -2495,6 +2534,7 @@ class PomodoroLogsCompanion extends UpdateCompanion<PomodoroLog> {
           ..write('todoId: $todoId, ')
           ..write('durationMinutes: $durationMinutes, ')
           ..write('mode: $mode, ')
+          ..write('cycleRound: $cycleRound, ')
           ..write('startedAt: $startedAt, ')
           ..write('endedAt: $endedAt, ')
           ..write('createdAt: $createdAt, ')
@@ -5270,6 +5310,7 @@ typedef $$PomodoroLogsTableCreateCompanionBuilder = PomodoroLogsCompanion
   Value<String?> todoId,
   required int durationMinutes,
   Value<String> mode,
+  Value<int> cycleRound,
   required int startedAt,
   required int endedAt,
   required int createdAt,
@@ -5283,6 +5324,7 @@ typedef $$PomodoroLogsTableUpdateCompanionBuilder = PomodoroLogsCompanion
   Value<String?> todoId,
   Value<int> durationMinutes,
   Value<String> mode,
+  Value<int> cycleRound,
   Value<int> startedAt,
   Value<int> endedAt,
   Value<int> createdAt,
@@ -5312,6 +5354,9 @@ class $$PomodoroLogsTableFilterComposer
 
   ColumnFilters<String> get mode => $composableBuilder(
       column: $table.mode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get cycleRound => $composableBuilder(
+      column: $table.cycleRound, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get startedAt => $composableBuilder(
       column: $table.startedAt, builder: (column) => ColumnFilters(column));
@@ -5351,6 +5396,9 @@ class $$PomodoroLogsTableOrderingComposer
   ColumnOrderings<String> get mode => $composableBuilder(
       column: $table.mode, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get cycleRound => $composableBuilder(
+      column: $table.cycleRound, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get startedAt => $composableBuilder(
       column: $table.startedAt, builder: (column) => ColumnOrderings(column));
 
@@ -5387,6 +5435,9 @@ class $$PomodoroLogsTableAnnotationComposer
 
   GeneratedColumn<String> get mode =>
       $composableBuilder(column: $table.mode, builder: (column) => column);
+
+  GeneratedColumn<int> get cycleRound => $composableBuilder(
+      column: $table.cycleRound, builder: (column) => column);
 
   GeneratedColumn<int> get startedAt =>
       $composableBuilder(column: $table.startedAt, builder: (column) => column);
@@ -5434,6 +5485,7 @@ class $$PomodoroLogsTableTableManager extends RootTableManager<
             Value<String?> todoId = const Value.absent(),
             Value<int> durationMinutes = const Value.absent(),
             Value<String> mode = const Value.absent(),
+            Value<int> cycleRound = const Value.absent(),
             Value<int> startedAt = const Value.absent(),
             Value<int> endedAt = const Value.absent(),
             Value<int> createdAt = const Value.absent(),
@@ -5446,6 +5498,7 @@ class $$PomodoroLogsTableTableManager extends RootTableManager<
             todoId: todoId,
             durationMinutes: durationMinutes,
             mode: mode,
+            cycleRound: cycleRound,
             startedAt: startedAt,
             endedAt: endedAt,
             createdAt: createdAt,
@@ -5458,6 +5511,7 @@ class $$PomodoroLogsTableTableManager extends RootTableManager<
             Value<String?> todoId = const Value.absent(),
             required int durationMinutes,
             Value<String> mode = const Value.absent(),
+            Value<int> cycleRound = const Value.absent(),
             required int startedAt,
             required int endedAt,
             required int createdAt,
@@ -5470,6 +5524,7 @@ class $$PomodoroLogsTableTableManager extends RootTableManager<
             todoId: todoId,
             durationMinutes: durationMinutes,
             mode: mode,
+            cycleRound: cycleRound,
             startedAt: startedAt,
             endedAt: endedAt,
             createdAt: createdAt,

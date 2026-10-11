@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "artifactKey": "flutter-analyze-post-sync-hardening-2026-10-10",
+  "type": "command",
+  "source": "flutter analyze --no-pub",
+  "summary": "静态分析通过，0 issues",
+  "verifier": "Codex"
+}

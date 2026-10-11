@@ -53,3 +53,26 @@
 - 不实现计划未列出的云后端；不启用 GLM5.3 并行代理
 
 These records are Method Pack drafts / hints, not authoritative runtime decisions.
+
+## BaselineUsageDraft
+
+- Required baseline refs:
+- docs/superpowers/plans/2025-10-10-dailydesk-implementation.md
+- design-spec.md
+- home-pages-借鉴指南.md
+- prototype.html
+- Delivered context refs:
+- none
+- Acknowledged before plan:
+- docs/superpowers/plans/2025-10-10-dailydesk-implementation.md
+- design-spec.md
+- home-pages-借鉴指南.md
+- prototype.html
+- Cited in plan:
+- docs/superpowers/plans/2025-10-10-dailydesk-implementation.md
+- design-spec.md
+- home-pages-借鉴指南.md
+- prototype.html
+- Missing refs:
+- none
+- Advisory decision: continue

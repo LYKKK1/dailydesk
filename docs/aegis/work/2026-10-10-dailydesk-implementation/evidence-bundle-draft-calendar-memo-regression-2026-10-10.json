@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "artifactKey": "calendar-memo-regression-2026-10-10",
+  "type": "regression",
+  "source": "test/features/calendar/time_block_timeline_test.dart; test/features/memos/memos_view_test.dart",
+  "summary": "日历 7 项与便签 2 项测试通过；避免活动 StreamBuilder 下重复 watch().first 导致测试挂起",
+  "verifier": "Codex"
+}

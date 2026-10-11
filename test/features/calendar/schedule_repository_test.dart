@@ -1,8 +1,8 @@
 import 'package:dailydesk/core/database/app_database.dart';
 import 'package:dailydesk/features/calendar/data/schedule_repository.dart';
 import 'package:dailydesk/features/todos/data/todo_repository.dart';
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../test_database.dart';
 
 void main() {
   late AppDatabase db;
@@ -10,7 +10,7 @@ void main() {
   late TodoRepository todos;
 
   setUp(() {
-    db = AppDatabase(NativeDatabase.memory());
+    db = createTestDatabase();
     repo = ScheduleRepository(db);
     todos = TodoRepository(db);
   });

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "artifactKey": "windows-release-build-blocked-toolchain-2026-10-10",
+  "type": "build",
+  "source": "flutter build windows --release; flutter doctor -v",
+  "summary": "Windows release 构建被缺少 Visual Studio Desktop development with C++ toolchain 阻塞",
+  "verifier": "flutter build / flutter doctor"
+}

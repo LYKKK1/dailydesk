@@ -1,14 +1,15 @@
 import 'package:dailydesk/core/database/app_database.dart';
 import 'package:dailydesk/features/todos/data/todo_repository.dart';
-import 'package:drift/native.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
+import '../../test_database.dart';
 
 void main() {
   late AppDatabase db;
   late TodoRepository repo;
 
   setUp(() {
-    db = AppDatabase(NativeDatabase.memory());
+    db = createTestDatabase();
     repo = TodoRepository(db);
   });
   tearDown(() => db.close());
@@ -70,6 +71,24 @@ void main() {
     final updated = (await repo.watchTodos().first).single;
     expect(updated.title, '新标题');
     expect(updated.updatedAt, greaterThan(1));
+  });
+
+  test('更新待办时可以清空可空字段', () async {
+    await repo.insertTodo(title: '收集箱任务', dueDate: '2025-10-13');
+    final original = (await repo.watchTodos().first).single;
+    await repo.updateIsTop(original.id, true);
+    final pinned = (await repo.watchTodos().first).single;
+
+    await repo.updateTodo(
+      pinned.copyWith(
+        dueDate: const Value<String?>(null),
+        isTop: false,
+      ),
+    );
+
+    final updated = (await repo.watchTodos().first).single;
+    expect(updated.dueDate, isNull);
+    expect(updated.isTop, isFalse);
   });
 
   test('全部子任务完成后返回主任务 id', () async {

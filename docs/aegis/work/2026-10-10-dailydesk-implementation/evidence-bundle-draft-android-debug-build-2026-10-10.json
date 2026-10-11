@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "artifactKey": "android-debug-build-2026-10-10",
+  "type": "build",
+  "source": "flutter build apk --debug",
+  "summary": "构建被 Maven Central 403 阻塞，尚未获得 Kotlin/Android 编译结果",
+  "verifier": "flutter build"
+}

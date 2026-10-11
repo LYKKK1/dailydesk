@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "artifactKey": "slidable-regression-2026-10-10",
+  "type": "regression",
+  "source": "test/features/todos/slidable_todo_tile_test.dart; test/features/todos/todo_repository_test.dart",
+  "summary": "Slidable 四个交互测试与 TodoRepository 可空字段清空回归通过；end pane 阈值与 updateTodo owner 修复已覆盖",
+  "verifier": "Codex"
+}
