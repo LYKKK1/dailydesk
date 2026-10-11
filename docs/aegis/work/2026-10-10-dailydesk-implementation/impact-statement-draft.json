@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "affectedLayers": [
+    "presentation/domain/infrastructure/platform/release"
+  ],
+  "owners": [
+    "DailyDesk implementation worktree"
+  ],
+  "invariants": [
+    "离线优先、SQLite 单一事实源、ULID、软删除、UTC 时间戳、DeepSeek-V4.1-Flash for parallel agents"
+  ],
+  "compatBoundary": "Windows 10/11 x64 与 Android 8.0+；不引入云端依赖",
+  "nonGoals": [
+    "不实现计划未列出的云后端；不启用 GLM5.3 并行代理"
+  ]
+}

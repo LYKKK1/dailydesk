@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "candidateDocs": [
+    "docs/superpowers/plans/2025-10-10-dailydesk-implementation.md",
+    "design-spec.md",
+    "home-pages-借鉴指南.md",
+    "prototype.html"
+  ],
+  "whyRelevant": "计划和设计规格定义了完整行为、架构和验收；原型定义界面形态",
+  "missingAuthority": []
+}

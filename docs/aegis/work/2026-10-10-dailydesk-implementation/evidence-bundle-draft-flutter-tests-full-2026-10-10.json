@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "artifactKey": "flutter-tests-full-2026-10-10",
+  "type": "command",
+  "source": "flutter test --no-pub --reporter expanded",
+  "summary": "全量 Flutter 测试通过，118 tests passed",
+  "verifier": "Codex"
+}

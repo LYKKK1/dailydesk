@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "artifactKey": "flutter-tests-full-post-pomodoro-reconcile-2026-10-10",
+  "type": "command",
+  "source": "flutter test --no-pub --reporter expanded",
+  "summary": "Pomodoro reconcile 修复后的全量 Flutter 测试通过，共 158 项。",
+  "verifier": "Codex"
+}

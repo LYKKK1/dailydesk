@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "artifactKey": "aegis-proof-bundle-check-2026-10-10",
+  "type": "workspace-check",
+  "source": "aegis-workspace.py bundle; aegis-workspace.py check",
+  "summary": "结构化 proof bundle 已生成，Aegis workspace check 通过；不覆盖 Android/Windows 构建和实机验收证据",
+  "verifier": "Codex"
+}

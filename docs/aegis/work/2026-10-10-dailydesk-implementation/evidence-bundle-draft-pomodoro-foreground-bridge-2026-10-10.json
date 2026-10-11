@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "aegis.schema.v0",
+  "artifactKey": "pomodoro-foreground-bridge-2026-10-10",
+  "type": "test",
+  "source": "flutter test --no-pub test/features/pomodoro/pomodoro_foreground_service_test.dart test/features/pomodoro/pomodoro_repository_test.dart",
+  "summary": "Dart bridge 参数映射与 repository 回归共 4 tests passed",
+  "verifier": "flutter test"
+}
